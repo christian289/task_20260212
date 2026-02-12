@@ -1,15 +1,17 @@
 ---
-name: Enforcing JsonSerializerOptions Predefinition
+name: enforcing-json-options-predefine
 description: Force JsonSerializerOptions to be declared as static readonly or readonly fields instead of creating new instances inside methods.
 ---
 
 # JsonSerializerOptions 사전 정의 강제
 
 ## 설명
+
 `JsonSerializerOptions`는 읽기 전용(ReadOnly) 객체로 설계되어야 합니다. 메서드 내부에서 매번 새로 생성하면 불필요한 메모리 할당과 성능 저하가 발생합니다.
 `JsonSerializerOptions`는 내부적으로 리플렉션 캐시를 유지하므로, 재사용하면 직렬화/역직렬화 성능이 크게 향상됩니다.
 
 ## 규칙
+
 - `JsonSerializerOptions`는 `static readonly` 필드 또는 `readonly` 인스턴스 필드로 사전 정의합니다
 - 메서드 내부에서 `new JsonSerializerOptions { ... }` 를 직접 생성하지 않습니다
 - 동일한 옵션 구성이 여러 곳에서 사용되면 공유 상수로 추출합니다
@@ -74,6 +76,7 @@ public async Task<T> Deserialize<T>(HttpResponseMessage response)
 ```
 
 ## 적용 대상
+
 - 모든 `JsonSerializer.Serialize()` 호출에서 사용하는 옵션
 - 모든 `JsonSerializer.Deserialize()` 호출에서 사용하는 옵션
 - 테스트 코드의 JSON 직렬화/역직렬화 옵션
