@@ -31,17 +31,21 @@ function hasChanges(cwd) {
 }
 
 function formatCommitMessage(prompt) {
-  // First line: truncated prompt (max 72 chars)
-  const firstLine = prompt.length > 72
-    ? prompt.substring(0, 69) + '...'
-    : prompt;
+  const lines = prompt.split('\n');
+  const rawFirstLine = lines[0].trim();
+  const hasMultipleLines = lines.length > 1;
 
-  // If prompt was truncated, include full text in body
-  if (prompt.length > 72) {
-    return `${firstLine}\n\n[User Request]\n${prompt}`;
+  // Subject: first line, truncated to 72 chars
+  const subject = rawFirstLine.length > 72
+    ? rawFirstLine.substring(0, 69) + '...'
+    : rawFirstLine;
+
+  // Include full body if multi-line or first line was truncated
+  if (hasMultipleLines || rawFirstLine.length > 72) {
+    return `${subject}\n\n[User Request]\n${prompt}`;
   }
 
-  return firstLine;
+  return subject;
 }
 
 async function main() {

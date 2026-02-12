@@ -43,8 +43,8 @@ async function main() {
     const prompt = extractPrompt(input);
     if (!prompt) process.exit(0);
 
-    // Truncate very long prompts for commit message (max 500 chars for first line)
-    const cleanPrompt = prompt.replace(/\r?\n/g, ' ').trim();
+    // Preserve newlines from multi-line prompts (notepad input)
+    const cleanPrompt = prompt.replace(/\r\n/g, '\n').trim();
 
     mkdirSync(dirname(PROMPT_FILE), { recursive: true });
     writeFileSync(PROMPT_FILE, cleanPrompt, 'utf-8');
