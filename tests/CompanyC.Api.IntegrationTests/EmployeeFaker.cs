@@ -1,5 +1,3 @@
-using CompanyC.Api;
-
 namespace CompanyC.Api.IntegrationTests;
 
 public static class EmployeeFaker

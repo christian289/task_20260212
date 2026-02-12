@@ -80,13 +80,7 @@ public sealed class EmployeeService : IEmployeeService
             if (email is null || phone is null)
                 continue;
 
-            result.Add(new Employee
-            {
-                Name = name,
-                Email = email,
-                Phone = phone,
-                JoinedDate = joinedDate
-            });
+            result.Add(new Employee(name, email, phone, joinedDate));
         }
 
         return result;
@@ -100,13 +94,12 @@ public sealed class EmployeeService : IEmployeeService
         return items
             .Where(dto => !string.IsNullOrWhiteSpace(dto.Name)
                        && !string.IsNullOrWhiteSpace(dto.Email))
-            .Select(dto => new Employee
-            {
-                Name = dto.Name!.Trim(),
-                Email = dto.Email!.Trim(),
-                Phone = dto.Tel?.Trim() ?? string.Empty,
-                JoinedDate = TryParseDate(dto.Joined, out var d) ? d : default
-            }).ToList();
+            .Select(dto => new Employee(
+                Name: dto.Name!.Trim(),
+                Email: dto.Email!.Trim(),
+                Phone: dto.Tel?.Trim() ?? string.Empty,
+                JoinedDate: TryParseDate(dto.Joined, out var d) ? d : default))
+            .ToList();
     }
 
     private static bool TryParseDate(string? value, out DateTime result)

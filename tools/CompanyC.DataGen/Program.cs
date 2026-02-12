@@ -69,13 +69,7 @@ for (int i = 0; i < count; i++)
     var phone = "010" + faker.Random.Number(10000000, 99999999).ToString();
     var joinedDate = faker.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31));
 
-    employees.Add(new Employee
-    {
-        Name = name,
-        Email = email,
-        Tel = phone,
-        Joined = joinedDate
-    });
+    employees.Add(new Employee(name, email, phone, joinedDate));
 }
 
 // Ensure output directory exists
@@ -116,10 +110,4 @@ if (format is "json" or "both")
 
 Console.WriteLine($"Data generation complete! Count: {count}, Format: {format}");
 
-record Employee
-{
-    public required string Name { get; init; }
-    public required string Email { get; init; }
-    public required string Tel { get; init; }
-    public required DateTime Joined { get; init; }
-}
+record Employee(string Name, string Email, string Tel, DateTime Joined);

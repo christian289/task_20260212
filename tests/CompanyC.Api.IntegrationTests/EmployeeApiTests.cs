@@ -1,15 +1,10 @@
 namespace CompanyC.Api.IntegrationTests;
 
-public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+public sealed class EmployeeApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
-    private readonly HttpClient _client;
+    private readonly HttpClient _client = factory.CreateClient();
     private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
     private readonly List<WebApplicationFactory<Program>> _factories = [];
-
-    public EmployeeApiTests(WebApplicationFactory<Program> factory)
-    {
-        _client = factory.CreateClient();
-    }
 
     public void Dispose()
     {
@@ -185,13 +180,13 @@ public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Progr
         return factory.CreateClient();
     }
 
-    private async Task PostCsvBody(HttpClient client, string csv)
+    private static async Task PostCsvBody(HttpClient client, string csv)
     {
         var content = new StringContent(csv, Encoding.UTF8, "text/csv");
         await client.PostAsync("/api/employee", content);
     }
 
-    private async Task<T> Deserialize<T>(HttpResponseMessage response)
+    private static async Task<T> Deserialize<T>(HttpResponseMessage response)
     {
         var json = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<T>(json, _json)!;

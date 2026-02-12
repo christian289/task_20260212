@@ -1,5 +1,3 @@
-using CompanyC.Api;
-
 namespace CompanyC.Api.IntegrationTests;
 
 public sealed class EmployeeApiMockTests : IDisposable
@@ -42,7 +40,7 @@ public sealed class EmployeeApiMockTests : IDisposable
     {
         var employees = new List<Employee>
         {
-            new() { Name = "김테스트", Email = "test@test.com", Phone = "01012345678", JoinedDate = new DateTime(2020, 1, 1) }
+            new(Name: "김테스트", Email: "test@test.com", Phone: "01012345678", JoinedDate: new DateTime(2020, 1, 1))
         };
         _mockService.Setup(s => s.GetAll(2, 5))
             .Returns((employees.AsReadOnly() as IReadOnlyList<Employee>, 11));
@@ -69,12 +67,12 @@ public sealed class EmployeeApiMockTests : IDisposable
     public async Task GetEmployeeByName_ReturnsOk_WhenServiceReturnsEmployee()
     {
         var employee = new Employee
-        {
-            Name = "박모크",
-            Email = "mock@test.com",
-            Phone = "01099998888",
-            JoinedDate = new DateTime(2022, 6, 15)
-        };
+        (
+            Name: "박모크",
+            Email: "mock@test.com",
+            Phone: "01099998888",
+            JoinedDate: new DateTime(2022, 6, 15)
+        );
         _mockService.Setup(s => s.GetByName("박모크"))
             .Returns(employee);
 
