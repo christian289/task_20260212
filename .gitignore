@@ -419,3 +419,7 @@ FodyWeavers.xsd
 
 # Claude Code hooks temp files
 .claude/hooks/.last_prompt
+
+# Windows reserved device names (prevent git add failures)
+nul
+NUL

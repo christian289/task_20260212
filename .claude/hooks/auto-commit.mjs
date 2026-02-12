@@ -5,11 +5,13 @@
  * Reads the saved prompt, checks for changes, and commits
  */
 
-import { readFileSync, unlinkSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
+import { join, dirname, resolve } from 'path';
 import { execSync } from 'child_process';
+import { tmpdir } from 'os';
 
-const PROMPT_FILE = join(dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')), '.last_prompt');
+const HOOKS_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'));
+const PROMPT_FILE = join(HOOKS_DIR, '.last_prompt');
 
 function getProjectRoot() {
   try {
@@ -65,14 +67,23 @@ async function main() {
 
     const commitMessage = formatCommitMessage(prompt);
 
-    // Stage all changes
-    execSync('git add -A', { cwd: projectRoot, encoding: 'utf-8' });
+    // Write commit message to temp file to preserve newlines
+    const tmpFile = join(tmpdir(), `claude-commit-${Date.now()}.txt`);
+    writeFileSync(tmpFile, commitMessage, 'utf-8');
 
-    // Commit with the prompt as message
-    execSync(`git commit -m ${JSON.stringify(commitMessage)} --no-verify`, {
-      cwd: projectRoot,
-      encoding: 'utf-8'
-    });
+    try {
+      // Stage all changes
+      execSync('git add -A', { cwd: projectRoot, encoding: 'utf-8' });
+
+      // Commit using -F (file) to preserve multiline message
+      execSync(`git commit -F "${tmpFile}" --no-verify`, {
+        cwd: projectRoot,
+        encoding: 'utf-8'
+      });
+    } finally {
+      // Clean up temp file
+      try { unlinkSync(tmpFile); } catch {}
+    }
 
   } catch (err) {
     // Silent fail - don't block Claude's stop

@@ -5,7 +5,10 @@
       "Bash(node:*)",
       "Bash(git rm:*)",
       "Bash(git commit:*)",
-      "mcp__plugin_playwright_playwright__browser_tabs"
+      "mcp__plugin_playwright_playwright__browser_tabs",
+      "Bash(test:*)",
+      "Bash(echo:*)",
+      "Bash(git reset:*)"
     ]
   },
   "hooks": {
