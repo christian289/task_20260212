@@ -1,0 +1,17 @@
+{
+  "agents": [
+    {
+      "agent_id": "a080718",
+      "agent_type": "oh-my-claudecode:vision",
+      "started_at": "2026-02-12T12:28:36.712Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-02-12T12:29:21.662Z",
+      "duration_ms": 44950
+    }
+  ],
+  "total_spawned": 1,
+  "total_completed": 1,
+  "total_failed": 0,
+  "last_updated": "2026-02-12T12:29:21.767Z"
+}

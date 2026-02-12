@@ -1,0 +1,122 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1770898428230,
+  "projectRoot": "D:\\Github\\task_20260212",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {},
+  "hotPaths": [
+    {
+      "path": "과제 조건.md",
+      "accessCount": 8,
+      "lastAccessed": 1770901180246,
+      "type": "file"
+    },
+    {
+      "path": "Company C TEST.png",
+      "accessCount": 4,
+      "lastAccessed": 1770899862595,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 4,
+      "lastAccessed": 1770902827821,
+      "type": "directory"
+    },
+    {
+      "path": "src\\CompanyC.Api\\Program.cs",
+      "accessCount": 3,
+      "lastAccessed": 1770902908556,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\EmployeeService.cs",
+      "accessCount": 3,
+      "lastAccessed": 1770902922192,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\chris\\.claude\\projects\\D--Github-task-20260212\\ccd8347f-0f1c-4375-9a71-5b8fbd46cc9e\\tool-results\\toolu_01XMAVys1pcNBWFDx4JH1J3K.txt",
+      "accessCount": 2,
+      "lastAccessed": 1770902997356,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Domain\\CompanyC.Domain.csproj",
+      "accessCount": 1,
+      "lastAccessed": 1770901332953,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Infrastructure\\CompanyC.Infrastructure.csproj",
+      "accessCount": 1,
+      "lastAccessed": 1770901333419,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
+      "accessCount": 1,
+      "lastAccessed": 1770901334176,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\CompanyC.Api.IntegrationTests.csproj",
+      "accessCount": 1,
+      "lastAccessed": 1770901334995,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Domain\\Models\\Employee.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770901340210,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Domain\\Repositories\\IEmployeeRepository.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770901344648,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\Employee.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770902876006,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiTests.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770902975536,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

@@ -8,7 +8,14 @@
       "mcp__plugin_playwright_playwright__browser_tabs",
       "Bash(test:*)",
       "Bash(echo:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(dotnet:*)",
+      "Bash(dir:*)",
+      "Bash(del \"D:\\\\Github\\\\task_20260212\\\\src\\\\CompanyC.Domain\\\\Class1.cs\")",
+      "Bash(del \"D:\\\\Github\\\\task_20260212\\\\src\\\\CompanyC.Infrastructure\\\\Class1.cs\")",
+      "Bash(git -C \"D:\\\\Github\\\\task_20260212\" log --oneline -5)",
+      "Bash(git -C \"D:\\\\Github\\\\task_20260212\" status)",
+      "Bash(git -C \"D:\\\\Github\\\\task_20260212\" reset HEAD~1)"
     ]
   },
   "hooks": {
