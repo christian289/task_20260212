@@ -19,7 +19,9 @@
       "mcp__plugin_oh-my-claudecode_t__lsp_diagnostics",
       "mcp__plugin_oh-my-claudecode_t__state_clear",
       "Bash(curl:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)"
     ]
   },
   "hooks": {
