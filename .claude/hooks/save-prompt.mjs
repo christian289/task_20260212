@@ -19,6 +19,7 @@ async function readStdin() {
 }
 
 function extractPrompt(input) {
+  // 1. Standard JSON parse - handles escaped \n correctly
   try {
     const data = JSON.parse(input);
     if (data.prompt) return data.prompt;
@@ -27,9 +28,14 @@ function extractPrompt(input) {
     if (data.message) return data.message;
   } catch {}
 
+  // 2. Fallback: extract JSON string value with proper escape handling
+  //    Supports escaped chars like \n, \t, \", \\
   try {
-    const match = input.match(/"(?:prompt|content|text)"\s*:\s*"([^"]+)"/);
-    if (match) return match[1];
+    const match = input.match(/"(?:prompt|content|text)"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
+    if (match) {
+      // Unescape JSON string escapes (e.g., \\n -> \n)
+      return JSON.parse(`"${match[1]}"`);
+    }
   } catch {}
 
   return null;
