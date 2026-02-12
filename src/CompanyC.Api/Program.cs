@@ -1,10 +1,15 @@
 using CompanyC.Api;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddOpenApi();
 builder.Services.AddSingleton<EmployeeService>();
 builder.Services.AddSingleton<IEmployeeService>(sp => sp.GetRequiredService<EmployeeService>());
 
 var app = builder.Build();
+
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 // GET /api/employee?page={page}&pageSize={pageSize}
 app.MapGet("/api/employee", (IEmployeeService svc, int page = 1, int pageSize = 10) =>
@@ -42,7 +47,7 @@ app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =
     if (contentType.Contains("multipart/form-data") && request.HasFormContentType)
     {
         var form = await request.ReadFormAsync();
-        var file = form.Files.FirstOrDefault();
+        var file = form.Files[0];
         if (file is null || file.Length == 0)
             return Results.BadRequest(new { message = "No file uploaded." });
 
@@ -89,6 +94,3 @@ static List<Employee> InferAndParse(string content)
         ? EmployeeService.ParseJson(trimmed)
         : EmployeeService.ParseCsv(content);
 }
-
-// WebApplicationFactory 에서 접근할 수 있도록 public partial class 선언
-public partial class Program;
