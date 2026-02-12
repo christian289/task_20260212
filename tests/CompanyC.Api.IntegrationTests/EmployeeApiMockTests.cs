@@ -14,7 +14,7 @@ public sealed class EmployeeApiMockTests : IDisposable
     private readonly Mock<IEmployeeService> _mockService = new();
     private readonly HttpClient _client;
     private readonly WebApplicationFactory<Program> _factory;
-    private readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
 
     public EmployeeApiMockTests()
     {

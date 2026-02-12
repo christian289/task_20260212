@@ -35,8 +35,8 @@
   "hotPaths": [
     {
       "path": "src\\CompanyC.Api\\EmployeeService.cs",
-      "accessCount": 15,
-      "lastAccessed": 1770905192664,
+      "accessCount": 19,
+      "lastAccessed": 1770906641173,
       "type": "file"
     },
     {
@@ -53,14 +53,14 @@
     },
     {
       "path": "",
-      "accessCount": 9,
-      "lastAccessed": 1770903856788,
+      "accessCount": 12,
+      "lastAccessed": 1770906349176,
       "type": "directory"
     },
     {
       "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiTests.cs",
-      "accessCount": 9,
-      "lastAccessed": 1770905061317,
+      "accessCount": 12,
+      "lastAccessed": 1770906647328,
       "type": "file"
     },
     {
@@ -70,15 +70,21 @@
       "type": "file"
     },
     {
-      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
-      "accessCount": 5,
-      "lastAccessed": 1770904865178,
+      "path": "src\\CompanyC.Api\\Employee.cs",
+      "accessCount": 7,
+      "lastAccessed": 1770906628344,
       "type": "file"
     },
     {
-      "path": "src\\CompanyC.Api\\Employee.cs",
+      "path": "tools\\CompanyC.DataGen\\Program.cs",
+      "accessCount": 6,
+      "lastAccessed": 1770906769432,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
       "accessCount": 5,
-      "lastAccessed": 1770905059815,
+      "lastAccessed": 1770904865178,
       "type": "file"
     },
     {
@@ -94,10 +100,28 @@
       "type": "file"
     },
     {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeFaker.cs",
+      "accessCount": 4,
+      "lastAccessed": 1770906662450,
+      "type": "file"
+    },
+    {
       "path": "C:\\Users\\chris\\.claude",
       "accessCount": 3,
       "lastAccessed": 1770903775241,
       "type": "directory"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiMockTests.cs",
+      "accessCount": 3,
+      "lastAccessed": 1770906653803,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeBogusTests.cs",
+      "accessCount": 3,
+      "lastAccessed": 1770906660744,
+      "type": "file"
     },
     {
       "path": "C:\\Users\\chris\\.claude\\projects\\D--Github-task-20260212\\ccd8347f-0f1c-4375-9a71-5b8fbd46cc9e\\tool-results\\toolu_01XMAVys1pcNBWFDx4JH1J3K.txt",
@@ -166,27 +190,15 @@
       "type": "file"
     },
     {
-      "path": "tools\\CompanyC.DataGen\\Program.cs",
+      "path": ".claude\\skills\\enforcing-dto-record\\SKILL.md",
       "accessCount": 1,
-      "lastAccessed": 1770905192033,
+      "lastAccessed": 1770906571998,
       "type": "file"
     },
     {
-      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeFaker.cs",
+      "path": ".claude\\skills\\enforcing-json-options-predefine\\SKILL.md",
       "accessCount": 1,
-      "lastAccessed": 1770905255554,
-      "type": "file"
-    },
-    {
-      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiMockTests.cs",
-      "accessCount": 1,
-      "lastAccessed": 1770905275019,
-      "type": "file"
-    },
-    {
-      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeBogusTests.cs",
-      "accessCount": 1,
-      "lastAccessed": 1770905301739,
+      "lastAccessed": 1770906572976,
       "type": "file"
     }
   ],

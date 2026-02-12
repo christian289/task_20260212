@@ -2,6 +2,12 @@ using Bogus;
 using System.Text;
 using System.Text.Json;
 
+var JsonWriteOptions = new JsonSerializerOptions
+{
+    WriteIndented = true,
+    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+};
+
 var count = 10;
 var format = "both";
 var outputPath = Directory.GetCurrentDirectory();
@@ -106,11 +112,7 @@ if (format is "json" or "both")
         joined = e.Joined.ToString("yyyy-MM-dd")
     }).ToList();
 
-    var jsonContent = JsonSerializer.Serialize(jsonData, new JsonSerializerOptions
-    {
-        WriteIndented = true,
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    });
+    var jsonContent = JsonSerializer.Serialize(jsonData, JsonWriteOptions);
 
     File.WriteAllText(jsonPath, jsonContent, Encoding.UTF8);
     Console.WriteLine($"Generated {count} employees -> {jsonPath}");

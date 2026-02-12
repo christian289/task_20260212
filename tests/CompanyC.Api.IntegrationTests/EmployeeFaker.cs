@@ -16,6 +16,12 @@ public static class EmployeeFaker
         .RuleFor(e => e.Phone, f => "010" + f.Random.Number(10000000, 99999999).ToString())
         .RuleFor(e => e.JoinedDate, f => f.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31)));
 
+    private static readonly JsonSerializerOptions JsonWriteOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+
     public static List<Employee> Generate(int count) => Faker.Generate(count);
 
     public static string GenerateCsv(int count)
@@ -39,10 +45,6 @@ public static class EmployeeFaker
             tel = e.Phone,
             joined = e.JoinedDate.ToString("yyyy-MM-dd")
         }).ToList();
-        return JsonSerializer.Serialize(data, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        });
+        return JsonSerializer.Serialize(data, JsonWriteOptions);
     }
 }

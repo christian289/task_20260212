@@ -7,6 +7,7 @@ public sealed class EmployeeService : IEmployeeService
 {
     private readonly Lock _lock = new();
     private readonly List<Employee> _employees = [];
+    private static readonly JsonSerializerOptions JsonReadOptions = new() { PropertyNameCaseInsensitive = true };
 
     public (IReadOnlyList<Employee> Items, int TotalCount) GetAll(int page, int pageSize)
     {
@@ -96,8 +97,7 @@ public sealed class EmployeeService : IEmployeeService
 
     internal static List<Employee> ParseJson(string json)
     {
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var items = JsonSerializer.Deserialize<List<JsonEmployeeDto>>(json, options)
+        var items = JsonSerializer.Deserialize<List<JsonEmployeeDto>>(json, JsonReadOptions)
             ?? [];
 
         return items
@@ -130,11 +130,5 @@ public sealed class EmployeeService : IEmployeeService
         return value.Replace("-", "").All(c => char.IsDigit(c) || c == '+');
     }
 
-    private sealed class JsonEmployeeDto
-    {
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-        public string? Tel { get; set; }
-        public string? Joined { get; set; }
-    }
+    private sealed record JsonEmployeeDto(string? Name, string? Email, string? Tel, string? Joined);
 }

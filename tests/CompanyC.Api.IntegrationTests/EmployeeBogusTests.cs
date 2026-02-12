@@ -8,7 +8,7 @@ namespace CompanyC.Api.IntegrationTests;
 
 public sealed class EmployeeBogusTests : IDisposable
 {
-    private readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
     private readonly List<WebApplicationFactory<Program>> _factories = [];
 
     public void Dispose()

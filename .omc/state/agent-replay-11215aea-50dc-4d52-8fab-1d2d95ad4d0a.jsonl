@@ -8,3 +8,10 @@
 {"t":0,"agent":"a41dea5","agent_type":"executor","event":"agent_start","parent_mode":"none"}
 {"t":0,"agent":"ab329b8","agent_type":"executor","event":"agent_stop","success":true,"duration_ms":24178}
 {"t":0,"agent":"a41dea5","agent_type":"executor","event":"agent_stop","success":true,"duration_ms":27862}
+{"t":0,"agent":"a42ba98","agent_type":"executor","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a36c334","agent_type":"executor","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a31382e","agent_type":"executor","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a36c334","agent_type":"executor","event":"agent_stop","success":true,"duration_ms":44978}
+{"t":0,"agent":"a31382e","agent_type":"executor","event":"agent_stop","success":true,"duration_ms":40175}
+{"t":0,"agent":"a42ba98","agent_type":"executor","event":"agent_stop","success":true,"duration_ms":57800}
+{"t":0,"agent":"af77abe","agent_type":"unknown","event":"agent_stop","success":true}

@@ -9,7 +9,7 @@ namespace CompanyC.Api.IntegrationTests;
 public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private readonly HttpClient _client;
-    private readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
     private readonly List<WebApplicationFactory<Program>> _factories = [];
 
     public EmployeeApiTests(WebApplicationFactory<Program> factory)
@@ -203,26 +203,9 @@ public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Progr
         return JsonSerializer.Deserialize<T>(json, _json)!;
     }
 
-    private sealed class PagedResponse
-    {
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public int TotalCount { get; set; }
-        public int TotalPages { get; set; }
-        public EmployeeDto[] Data { get; set; } = [];
-    }
+    private sealed record PagedResponse(int Page, int PageSize, int TotalCount, int TotalPages, EmployeeDto[] Data);
 
-    private sealed class CreatedResponse
-    {
-        public int Count { get; set; }
-        public EmployeeDto[] Data { get; set; } = [];
-    }
+    private sealed record CreatedResponse(int Count, EmployeeDto[] Data);
 
-    private sealed class EmployeeDto
-    {
-        public string Name { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string Phone { get; set; } = "";
-        public DateTime JoinedDate { get; set; }
-    }
+    private sealed record EmployeeDto(string Name, string Email, string Phone, DateTime JoinedDate);
 }
