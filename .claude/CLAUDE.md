@@ -3,20 +3,35 @@
 ## Project Overview
 Company C 입사과제 - 직원 긴급 연락망 API (ASP.NET Core Minimal API, .NET 10)
 
+## Requirements (과제 조건.md)
+### 필수
+- 직원 기본 연락 정보 조회 (GET 목록 + GET 이름검색)
+- CSV/JSON 파일 업로드 및 body 직접 입력으로 직원 추가 (POST)
+- CQRS 패턴 형태로 코드 구성
+- 성공/실패 케이스 테스트 코드 작성
+
+### Optional
+- 로그 기능 구현
+- OpenAPI를 이용한 API spec 노출 (구현 완료: Scalar UI)
+- 설계 변경 시 반영하기 쉬운 코드 형태
+
 ## Structure
 ```
 CompanyC.slnx                          # Solution file
 src/CompanyC.Api/                      # API project (Minimal API)
+  GlobalUsings.cs                      # Global using declarations
   Employee.cs                          # Employee record model
   IEmployeeService.cs                  # Service interface (for DI/Moq)
   EmployeeService.cs                   # Business logic + CSV/JSON parsing
   Program.cs                           # Endpoints + DI + OpenAPI/Scalar
 tests/CompanyC.Api.IntegrationTests/   # Integration tests (xUnit)
+  GlobalUsings.cs                      # Global using declarations
   EmployeeApiTests.cs                  # 10 integration tests
   EmployeeApiMockTests.cs             # 4 Moq-based unit tests
   EmployeeBogusTests.cs               # 6 Bogus data-driven tests
   EmployeeFaker.cs                     # Bogus test data generator
 tools/CompanyC.DataGen/                # CLI dummy data generator
+  GlobalUsings.cs                      # Global using declarations
   Program.cs                           # Bogus-based Korean employee data gen
 ```
 
@@ -41,6 +56,10 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - CSV format: email and phone may be space-separated (e.g. `charles@clovf.com 01075312468`)
 - Korean names supported (UTF-8)
 - Integration tests use isolated `WebApplicationFactory` instances per test
-- DTOs must be `record` (not `class`) - see `.claude/skills/enforcing-dto-record/`
-- `JsonSerializerOptions` must be `static readonly` - see `.claude/skills/enforcing-json-options-predefine/`
 - `IEmployeeService` interface for DI testability (Moq support)
+
+## Coding Standards (Skills)
+- DTOs must be `record` (not `class`) - see `.claude/skills/enforcing-dto-record/`
+- Record instantiation via constructor with Named Arguments (not property initializer) - see `.claude/skills/enforcing-record-constructor-initialization/`
+- `JsonSerializerOptions` must be `static readonly` - see `.claude/skills/enforcing-json-options-predefine/`
+- External namespaces centralized in `GlobalUsings.cs` - see `.claude/skills/managing-global-usings/`
