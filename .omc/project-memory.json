@@ -35,15 +35,21 @@
   "hotPaths": [
     {
       "path": "src\\CompanyC.Api\\EmployeeService.cs",
-      "accessCount": 20,
-      "lastAccessed": 1770908042899,
+      "accessCount": 21,
+      "lastAccessed": 1770908176858,
       "type": "file"
     },
     {
       "path": "src\\CompanyC.Api\\Program.cs",
-      "accessCount": 19,
-      "lastAccessed": 1770908122304,
+      "accessCount": 20,
+      "lastAccessed": 1770908175218,
       "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 15,
+      "lastAccessed": 1770908191184,
+      "type": "directory"
     },
     {
       "path": "과제 조건.md",
@@ -52,39 +58,33 @@
       "type": "file"
     },
     {
-      "path": "",
-      "accessCount": 12,
-      "lastAccessed": 1770906349176,
-      "type": "directory"
-    },
-    {
       "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiTests.cs",
-      "accessCount": 12,
-      "lastAccessed": 1770906647328,
-      "type": "file"
-    },
-    {
-      "path": "tests\\CompanyC.Api.IntegrationTests\\CompanyC.Api.IntegrationTests.csproj",
-      "accessCount": 8,
-      "lastAccessed": 1770905250273,
+      "accessCount": 13,
+      "lastAccessed": 1770908181900,
       "type": "file"
     },
     {
       "path": "src\\CompanyC.Api\\Employee.cs",
+      "accessCount": 9,
+      "lastAccessed": 1770908176065,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\CompanyC.Api.IntegrationTests.csproj",
+      "accessCount": 9,
+      "lastAccessed": 1770908191157,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
       "accessCount": 8,
-      "lastAccessed": 1770907999994,
+      "lastAccessed": 1770908175639,
       "type": "file"
     },
     {
       "path": "README.md",
       "accessCount": 7,
       "lastAccessed": 1770907763717,
-      "type": "file"
-    },
-    {
-      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
-      "accessCount": 7,
-      "lastAccessed": 1770907999539,
       "type": "file"
     },
     {
@@ -112,6 +112,12 @@
       "type": "file"
     },
     {
+      "path": "src\\CompanyC.Api\\IEmployeeService.cs",
+      "accessCount": 4,
+      "lastAccessed": 1770908188807,
+      "type": "file"
+    },
+    {
       "path": "C:\\Users\\chris\\.claude",
       "accessCount": 3,
       "lastAccessed": 1770903775241,
@@ -133,12 +139,6 @@
       "path": "CLAUDE.md",
       "accessCount": 3,
       "lastAccessed": 1770907734013,
-      "type": "file"
-    },
-    {
-      "path": "src\\CompanyC.Api\\IEmployeeService.cs",
-      "accessCount": 3,
-      "lastAccessed": 1770908000476,
       "type": "file"
     },
     {
@@ -200,6 +200,12 @@
       "accessCount": 1,
       "lastAccessed": 1770906572976,
       "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api",
+      "accessCount": 1,
+      "lastAccessed": 1770908190542,
+      "type": "directory"
     }
   ],
   "userDirectives": []

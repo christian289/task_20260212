@@ -18,3 +18,6 @@
 {"t":0,"agent":"system","event":"keyword_detected","keyword":"ralph"}
 {"t":0,"agent":"system","event":"mode_change","mode_from":"none","mode_to":"ralph"}
 {"t":0,"agent":"system","event":"skill_invoked","skill_name":"oh-my-claudecode:ralph"}
+{"t":0,"agent":"a0ec29b","agent_type":"architect","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a0ec29b","agent_type":"architect","event":"agent_stop","success":true,"duration_ms":64316}
+{"t":0,"agent":"system","event":"skill_invoked","skill_name":"oh-my-claudecode:cancel"}
