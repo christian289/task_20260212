@@ -15,7 +15,9 @@
       "Bash(del \"D:\\\\Github\\\\task_20260212\\\\src\\\\CompanyC.Infrastructure\\\\Class1.cs\")",
       "Bash(git -C \"D:\\\\Github\\\\task_20260212\" log --oneline -5)",
       "Bash(git -C \"D:\\\\Github\\\\task_20260212\" status)",
-      "Bash(git -C \"D:\\\\Github\\\\task_20260212\" reset HEAD~1)"
+      "Bash(git -C \"D:\\\\Github\\\\task_20260212\" reset HEAD~1)",
+      "mcp__plugin_oh-my-claudecode_t__lsp_diagnostics",
+      "mcp__plugin_oh-my-claudecode_t__state_clear"
     ]
   },
   "hooks": {

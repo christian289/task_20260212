@@ -6,14 +6,21 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace CompanyC.Api.IntegrationTests;
 
-public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private readonly HttpClient _client;
     private readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+    private readonly List<WebApplicationFactory<Program>> _factories = [];
 
     public EmployeeApiTests(WebApplicationFactory<Program> factory)
     {
         _client = factory.CreateClient();
+    }
+
+    public void Dispose()
+    {
+        foreach (var f in _factories)
+            f.Dispose();
     }
 
     // === GET /api/employee (목록 조회) ===
@@ -146,6 +153,24 @@ public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Progr
         Assert.Equal(2, body.Count);
     }
 
+    // === POST /api/employee - 과제 문서의 실제 CSV 형식 (email과 phone이 공백 구분) ===
+
+    [Fact]
+    public async Task PostCsv_Body_WithSpaceSeparatedFields_ReturnsCreated()
+    {
+        var client = CreateIsolatedClient();
+        var csv = "김철수, charles@clovf.com 01075312468, 2018.03.07\n박영희, matilda@clovf.com 01087654321, , 2021.04.28\n홍길동, kildong-hong@clovf.com 01012345678, 2015.08.15";
+        var content = new StringContent(csv, Encoding.UTF8, "text/csv");
+
+        var response = await client.PostAsync("/api/employee", content);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var body = await Deserialize<CreatedResponse>(response);
+        Assert.Equal(3, body.Count);
+        Assert.Equal("charles@clovf.com", body.Data[0].Email);
+        Assert.Equal("01075312468", body.Data[0].Phone);
+    }
+
     // === POST /api/employee - 빈 요청 ===
 
     [Fact]
@@ -162,6 +187,7 @@ public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Progr
     private HttpClient CreateIsolatedClient()
     {
         var factory = new WebApplicationFactory<Program>();
+        _factories.Add(factory);
         return factory.CreateClient();
     }
 

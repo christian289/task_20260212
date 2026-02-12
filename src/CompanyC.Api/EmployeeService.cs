@@ -5,41 +5,37 @@ namespace CompanyC.Api;
 
 public sealed class EmployeeService
 {
+    private readonly Lock _lock = new();
     private readonly List<Employee> _employees = [];
 
     public (IReadOnlyList<Employee> Items, int TotalCount) GetAll(int page, int pageSize)
     {
-        var total = _employees.Count;
-        var items = _employees
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-        return (items, total);
+        lock (_lock)
+        {
+            var total = _employees.Count;
+            var items = _employees
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            return (items, total);
+        }
     }
 
     public Employee? GetByName(string name)
     {
-        return _employees.FirstOrDefault(e =>
-            e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public List<Employee> AddFromCsv(string csv)
-    {
-        var employees = ParseCsv(csv);
-        _employees.AddRange(employees);
-        return employees;
-    }
-
-    public List<Employee> AddFromJson(string json)
-    {
-        var employees = ParseJson(json);
-        _employees.AddRange(employees);
-        return employees;
+        lock (_lock)
+        {
+            return _employees.FirstOrDefault(e =>
+                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     public void AddFromParsed(List<Employee> employees)
     {
-        _employees.AddRange(employees);
+        lock (_lock)
+        {
+            _employees.AddRange(employees);
+        }
     }
 
     internal static List<Employee> ParseCsv(string csv)
@@ -58,7 +54,7 @@ public sealed class EmployeeService
                 .Where(p => !string.IsNullOrEmpty(p))
                 .ToArray();
 
-            if (parts.Length < 3)
+            if (parts.Length < 2)
                 continue;
 
             var name = parts[0];
@@ -66,14 +62,21 @@ public sealed class EmployeeService
             string? phone = null;
             DateTime joinedDate = default;
 
-            foreach (var part in parts.Skip(1))
+            // 쉼표로 나눈 각 필드를 다시 공백으로 분리하여 토큰화
+            var tokens = parts.Skip(1)
+                .SelectMany(p => p.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .ToArray();
+
+            foreach (var token in tokens)
             {
-                if (part.Contains('@'))
-                    email = part;
-                else if (TryParseDate(part, out var date))
+                if (token.Contains('@'))
+                    email = token;
+                else if (TryParseDate(token, out var date))
                     joinedDate = date;
-                else if (IsPhoneNumber(part))
-                    phone = part;
+                else if (IsPhoneNumber(token))
+                    phone = token;
             }
 
             if (email is null || phone is null)
@@ -97,13 +100,16 @@ public sealed class EmployeeService
         var items = JsonSerializer.Deserialize<List<JsonEmployeeDto>>(json, options)
             ?? [];
 
-        return items.Select(dto => new Employee
-        {
-            Name = dto.Name ?? string.Empty,
-            Email = dto.Email ?? string.Empty,
-            Phone = dto.Tel ?? string.Empty,
-            JoinedDate = TryParseDate(dto.Joined, out var d) ? d : default
-        }).ToList();
+        return items
+            .Where(dto => !string.IsNullOrWhiteSpace(dto.Name)
+                       && !string.IsNullOrWhiteSpace(dto.Email))
+            .Select(dto => new Employee
+            {
+                Name = dto.Name!.Trim(),
+                Email = dto.Email!.Trim(),
+                Phone = dto.Tel?.Trim() ?? string.Empty,
+                JoinedDate = TryParseDate(dto.Joined, out var d) ? d : default
+            }).ToList();
     }
 
     private static bool TryParseDate(string? value, out DateTime result)

@@ -35,8 +35,32 @@
   "hotPaths": [
     {
       "path": "과제 조건.md",
-      "accessCount": 8,
-      "lastAccessed": 1770901180246,
+      "accessCount": 12,
+      "lastAccessed": 1770903858102,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\EmployeeService.cs",
+      "accessCount": 10,
+      "lastAccessed": 1770903482941,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 9,
+      "lastAccessed": 1770903856788,
+      "type": "directory"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiTests.cs",
+      "accessCount": 7,
+      "lastAccessed": 1770903483449,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\Program.cs",
+      "accessCount": 6,
+      "lastAccessed": 1770903482236,
       "type": "file"
     },
     {
@@ -46,22 +70,28 @@
       "type": "file"
     },
     {
-      "path": "",
+      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
       "accessCount": 4,
-      "lastAccessed": 1770902827821,
+      "lastAccessed": 1770903857183,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\CompanyC.Api.IntegrationTests.csproj",
+      "accessCount": 4,
+      "lastAccessed": 1770903857818,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\Employee.cs",
+      "accessCount": 3,
+      "lastAccessed": 1770903482621,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\chris\\.claude",
+      "accessCount": 3,
+      "lastAccessed": 1770903775241,
       "type": "directory"
-    },
-    {
-      "path": "src\\CompanyC.Api\\Program.cs",
-      "accessCount": 3,
-      "lastAccessed": 1770902908556,
-      "type": "file"
-    },
-    {
-      "path": "src\\CompanyC.Api\\EmployeeService.cs",
-      "accessCount": 3,
-      "lastAccessed": 1770902922192,
-      "type": "file"
     },
     {
       "path": "C:\\Users\\chris\\.claude\\projects\\D--Github-task-20260212\\ccd8347f-0f1c-4375-9a71-5b8fbd46cc9e\\tool-results\\toolu_01XMAVys1pcNBWFDx4JH1J3K.txt",
@@ -82,18 +112,6 @@
       "type": "file"
     },
     {
-      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
-      "accessCount": 1,
-      "lastAccessed": 1770901334176,
-      "type": "file"
-    },
-    {
-      "path": "tests\\CompanyC.Api.IntegrationTests\\CompanyC.Api.IntegrationTests.csproj",
-      "accessCount": 1,
-      "lastAccessed": 1770901334995,
-      "type": "file"
-    },
-    {
       "path": "src\\CompanyC.Domain\\Models\\Employee.cs",
       "accessCount": 1,
       "lastAccessed": 1770901340210,
@@ -106,15 +124,27 @@
       "type": "file"
     },
     {
-      "path": "src\\CompanyC.Api\\Employee.cs",
+      "path": "CompanyC.slnx",
       "accessCount": 1,
-      "lastAccessed": 1770902876006,
+      "lastAccessed": 1770903483862,
       "type": "file"
     },
     {
-      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiTests.cs",
+      "path": "C:\\Users\\chris\\.claude\\ultrawork-state.json",
       "accessCount": 1,
-      "lastAccessed": 1770902975536,
+      "lastAccessed": 1770903774454,
+      "type": "file"
+    },
+    {
+      "path": "CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1770903869271,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 1,
+      "lastAccessed": 1770903884342,
       "type": "file"
     }
   ],

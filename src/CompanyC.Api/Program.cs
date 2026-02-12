@@ -1,4 +1,3 @@
-using System.Net.Mime;
 using CompanyC.Api;
 
 var builder = WebApplication.CreateBuilder(args);

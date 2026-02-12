@@ -4,3 +4,9 @@
 {"t":0,"agent":"system","event":"mode_change","mode_from":"none","mode_to":"ralph"}
 {"t":0,"agent":"system","event":"keyword_detected","keyword":"ralph"}
 {"t":0,"agent":"system","event":"mode_change","mode_from":"none","mode_to":"ralph"}
+{"t":0,"agent":"a027fc6","agent_type":"architect","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a027fc6","agent_type":"architect","event":"agent_stop","success":true,"duration_ms":80466}
+{"t":0,"agent":"ae04acf","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"ae16850","agent_type":"architect","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"ae16850","agent_type":"architect","event":"agent_stop","success":true,"duration_ms":67159}
+{"t":0,"agent":"system","event":"skill_invoked","skill_name":"oh-my-claudecode:cancel"}
