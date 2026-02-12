@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git -C \"C:\\\\Users\\\\chris\\\\source\\\\repos\\\\task_20260212\" log --oneline -5)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)"
     ]
   },
   "hooks": {
