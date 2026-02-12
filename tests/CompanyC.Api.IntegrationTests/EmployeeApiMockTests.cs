@@ -1,11 +1,4 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using CompanyC.Api;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
 
 namespace CompanyC.Api.IntegrationTests;
 

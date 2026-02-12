@@ -1,6 +1,3 @@
-using System.Globalization;
-using System.Text.Json;
-
 namespace CompanyC.Api;
 
 public sealed class EmployeeService : IEmployeeService

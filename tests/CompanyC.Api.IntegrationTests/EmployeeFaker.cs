@@ -1,7 +1,4 @@
-using Bogus;
 using CompanyC.Api;
-using System.Text;
-using System.Text.Json;
 
 namespace CompanyC.Api.IntegrationTests;
 

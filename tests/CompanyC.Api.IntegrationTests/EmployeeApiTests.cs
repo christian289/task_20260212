@@ -1,9 +1,3 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-
 namespace CompanyC.Api.IntegrationTests;
 
 public sealed class EmployeeApiTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable

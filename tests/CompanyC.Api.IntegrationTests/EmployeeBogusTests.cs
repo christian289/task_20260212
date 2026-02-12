@@ -1,8 +1,4 @@
-using System.Net;
-using System.Text;
-using System.Text.Json;
 using CompanyC.Api;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace CompanyC.Api.IntegrationTests;
 
