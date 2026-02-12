@@ -76,6 +76,12 @@
       "type": "file"
     },
     {
+      "path": "README.md",
+      "accessCount": 7,
+      "lastAccessed": 1770907763717,
+      "type": "file"
+    },
+    {
       "path": "tools\\CompanyC.DataGen\\Program.cs",
       "accessCount": 6,
       "lastAccessed": 1770906769432,
@@ -124,15 +130,15 @@
       "type": "file"
     },
     {
-      "path": "C:\\Users\\chris\\.claude\\projects\\D--Github-task-20260212\\ccd8347f-0f1c-4375-9a71-5b8fbd46cc9e\\tool-results\\toolu_01XMAVys1pcNBWFDx4JH1J3K.txt",
-      "accessCount": 2,
-      "lastAccessed": 1770902997356,
+      "path": "CLAUDE.md",
+      "accessCount": 3,
+      "lastAccessed": 1770907734013,
       "type": "file"
     },
     {
-      "path": "README.md",
+      "path": "C:\\Users\\chris\\.claude\\projects\\D--Github-task-20260212\\ccd8347f-0f1c-4375-9a71-5b8fbd46cc9e\\tool-results\\toolu_01XMAVys1pcNBWFDx4JH1J3K.txt",
       "accessCount": 2,
-      "lastAccessed": 1770904862190,
+      "lastAccessed": 1770902997356,
       "type": "file"
     },
     {
@@ -169,12 +175,6 @@
       "path": "C:\\Users\\chris\\.claude\\ultrawork-state.json",
       "accessCount": 1,
       "lastAccessed": 1770903774454,
-      "type": "file"
-    },
-    {
-      "path": "CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1770903869271,
       "type": "file"
     },
     {
