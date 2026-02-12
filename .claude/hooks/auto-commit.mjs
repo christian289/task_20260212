@@ -31,21 +31,7 @@ function hasChanges(cwd) {
 }
 
 function formatCommitMessage(prompt) {
-  const lines = prompt.split('\n');
-  const rawFirstLine = lines[0].trim();
-  const hasMultipleLines = lines.length > 1;
-
-  // Subject: first line, truncated to 72 chars
-  const subject = rawFirstLine.length > 72
-    ? rawFirstLine.substring(0, 69) + '...'
-    : rawFirstLine;
-
-  // Include full body if multi-line or first line was truncated
-  if (hasMultipleLines || rawFirstLine.length > 72) {
-    return `${subject}\n\n[User Request]\n${prompt}`;
-  }
-
-  return subject;
+  return `[User Request]\n${prompt}`;
 }
 
 async function main() {
