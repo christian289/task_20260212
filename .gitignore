@@ -423,3 +423,4 @@ FodyWeavers.xsd
 # Windows reserved device names (prevent git add failures)
 nul
 NUL
+.omc
