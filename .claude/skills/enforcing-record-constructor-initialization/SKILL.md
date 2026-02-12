@@ -1,5 +1,5 @@
 ---
-name: Enforcing Record Constructor Initialization
+name: enforcing-record-constructor-initialization
 description: Force record instantiation via positional constructor with named arguments instead of property initializer syntax for stronger immutability expression.
 ---
 
