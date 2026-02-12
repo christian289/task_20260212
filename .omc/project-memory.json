@@ -34,15 +34,21 @@
   "directoryMap": {},
   "hotPaths": [
     {
-      "path": "과제 조건.md",
-      "accessCount": 12,
-      "lastAccessed": 1770903858102,
+      "path": "src\\CompanyC.Api\\EmployeeService.cs",
+      "accessCount": 15,
+      "lastAccessed": 1770905192664,
       "type": "file"
     },
     {
-      "path": "src\\CompanyC.Api\\EmployeeService.cs",
-      "accessCount": 10,
-      "lastAccessed": 1770903482941,
+      "path": "src\\CompanyC.Api\\Program.cs",
+      "accessCount": 14,
+      "lastAccessed": 1770905193020,
+      "type": "file"
+    },
+    {
+      "path": "과제 조건.md",
+      "accessCount": 13,
+      "lastAccessed": 1770905061640,
       "type": "file"
     },
     {
@@ -53,38 +59,38 @@
     },
     {
       "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiTests.cs",
-      "accessCount": 7,
-      "lastAccessed": 1770903483449,
+      "accessCount": 9,
+      "lastAccessed": 1770905061317,
       "type": "file"
     },
     {
-      "path": "src\\CompanyC.Api\\Program.cs",
-      "accessCount": 6,
-      "lastAccessed": 1770903482236,
+      "path": "tests\\CompanyC.Api.IntegrationTests\\CompanyC.Api.IntegrationTests.csproj",
+      "accessCount": 8,
+      "lastAccessed": 1770905250273,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
+      "accessCount": 5,
+      "lastAccessed": 1770904865178,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\Employee.cs",
+      "accessCount": 5,
+      "lastAccessed": 1770905059815,
+      "type": "file"
+    },
+    {
+      "path": "CompanyC.slnx",
+      "accessCount": 5,
+      "lastAccessed": 1770905332005,
       "type": "file"
     },
     {
       "path": "Company C TEST.png",
       "accessCount": 4,
       "lastAccessed": 1770899862595,
-      "type": "file"
-    },
-    {
-      "path": "src\\CompanyC.Api\\CompanyC.Api.csproj",
-      "accessCount": 4,
-      "lastAccessed": 1770903857183,
-      "type": "file"
-    },
-    {
-      "path": "tests\\CompanyC.Api.IntegrationTests\\CompanyC.Api.IntegrationTests.csproj",
-      "accessCount": 4,
-      "lastAccessed": 1770903857818,
-      "type": "file"
-    },
-    {
-      "path": "src\\CompanyC.Api\\Employee.cs",
-      "accessCount": 3,
-      "lastAccessed": 1770903482621,
       "type": "file"
     },
     {
@@ -97,6 +103,18 @@
       "path": "C:\\Users\\chris\\.claude\\projects\\D--Github-task-20260212\\ccd8347f-0f1c-4375-9a71-5b8fbd46cc9e\\tool-results\\toolu_01XMAVys1pcNBWFDx4JH1J3K.txt",
       "accessCount": 2,
       "lastAccessed": 1770902997356,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 2,
+      "lastAccessed": 1770904862190,
+      "type": "file"
+    },
+    {
+      "path": "src\\CompanyC.Api\\IEmployeeService.cs",
+      "accessCount": 2,
+      "lastAccessed": 1770905192282,
       "type": "file"
     },
     {
@@ -124,12 +142,6 @@
       "type": "file"
     },
     {
-      "path": "CompanyC.slnx",
-      "accessCount": 1,
-      "lastAccessed": 1770903483862,
-      "type": "file"
-    },
-    {
       "path": "C:\\Users\\chris\\.claude\\ultrawork-state.json",
       "accessCount": 1,
       "lastAccessed": 1770903774454,
@@ -142,9 +154,39 @@
       "type": "file"
     },
     {
-      "path": "README.md",
+      "path": "C:\\Users\\chris\\.claude\\plans\\snazzy-scribbling-garden.md",
       "accessCount": 1,
-      "lastAccessed": 1770903884342,
+      "lastAccessed": 1770904939636,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\claude\\D--Github-task-20260212\\tasks\\b4dddb6.output",
+      "accessCount": 1,
+      "lastAccessed": 1770905162019,
+      "type": "file"
+    },
+    {
+      "path": "tools\\CompanyC.DataGen\\Program.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770905192033,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeFaker.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770905255554,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeApiMockTests.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770905275019,
+      "type": "file"
+    },
+    {
+      "path": "tests\\CompanyC.Api.IntegrationTests\\EmployeeBogusTests.cs",
+      "accessCount": 1,
+      "lastAccessed": 1770905301739,
       "type": "file"
     }
   ],

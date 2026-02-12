@@ -2,11 +2,12 @@ using CompanyC.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<EmployeeService>();
+builder.Services.AddSingleton<IEmployeeService>(sp => sp.GetRequiredService<EmployeeService>());
 
 var app = builder.Build();
 
 // GET /api/employee?page={page}&pageSize={pageSize}
-app.MapGet("/api/employee", (EmployeeService svc, int page = 1, int pageSize = 10) =>
+app.MapGet("/api/employee", (IEmployeeService svc, int page = 1, int pageSize = 10) =>
 {
     if (page < 1) page = 1;
     if (pageSize < 1) pageSize = 10;
@@ -23,7 +24,7 @@ app.MapGet("/api/employee", (EmployeeService svc, int page = 1, int pageSize = 1
 });
 
 // GET /api/employee/{name}
-app.MapGet("/api/employee/{name}", (EmployeeService svc, string name) =>
+app.MapGet("/api/employee/{name}", (IEmployeeService svc, string name) =>
 {
     var employee = svc.GetByName(name);
     return employee is not null
@@ -32,7 +33,7 @@ app.MapGet("/api/employee/{name}", (EmployeeService svc, string name) =>
 });
 
 // POST /api/employee
-app.MapPost("/api/employee", async (HttpRequest request, EmployeeService svc) =>
+app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =>
 {
     var contentType = request.ContentType?.ToLowerInvariant() ?? "";
     List<Employee> added;

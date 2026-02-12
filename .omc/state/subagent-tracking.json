@@ -1,35 +1,53 @@
 {
   "agents": [
     {
-      "agent_id": "a080718",
-      "agent_type": "oh-my-claudecode:vision",
-      "started_at": "2026-02-12T12:28:36.712Z",
+      "agent_id": "af96499",
+      "agent_type": "oh-my-claudecode:executor",
+      "started_at": "2026-02-12T14:05:04.283Z",
       "parent_mode": "none",
       "status": "completed",
-      "completed_at": "2026-02-12T12:29:21.662Z",
-      "duration_ms": 44950
+      "completed_at": "2026-02-12T14:06:09.733Z",
+      "duration_ms": 65450
     },
     {
-      "agent_id": "a027fc6",
-      "agent_type": "oh-my-claudecode:architect",
-      "started_at": "2026-02-12T13:33:57.596Z",
+      "agent_id": "ab52509",
+      "agent_type": "oh-my-claudecode:executor",
+      "started_at": "2026-02-12T14:05:13.891Z",
       "parent_mode": "none",
       "status": "completed",
-      "completed_at": "2026-02-12T13:35:18.062Z",
-      "duration_ms": 80466
+      "completed_at": "2026-02-12T14:06:20.185Z",
+      "duration_ms": 66294
     },
     {
-      "agent_id": "ae16850",
-      "agent_type": "oh-my-claudecode:architect",
-      "started_at": "2026-02-12T13:37:57.805Z",
+      "agent_id": "afa381f",
+      "agent_type": "oh-my-claudecode:executor",
+      "started_at": "2026-02-12T14:07:22.481Z",
       "parent_mode": "none",
       "status": "completed",
-      "completed_at": "2026-02-12T13:39:04.964Z",
-      "duration_ms": 67159
+      "completed_at": "2026-02-12T14:07:53.819Z",
+      "duration_ms": 31338
+    },
+    {
+      "agent_id": "ab329b8",
+      "agent_type": "oh-my-claudecode:executor",
+      "started_at": "2026-02-12T14:07:41.856Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-02-12T14:08:06.034Z",
+      "duration_ms": 24178
+    },
+    {
+      "agent_id": "a41dea5",
+      "agent_type": "oh-my-claudecode:executor",
+      "started_at": "2026-02-12T14:08:04.551Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-02-12T14:08:32.413Z",
+      "duration_ms": 27862
     }
   ],
-  "total_spawned": 3,
-  "total_completed": 3,
+  "total_spawned": 5,
+  "total_completed": 5,
   "total_failed": 0,
-  "last_updated": "2026-02-12T13:39:05.070Z"
+  "last_updated": "2026-02-12T14:08:32.519Z"
 }

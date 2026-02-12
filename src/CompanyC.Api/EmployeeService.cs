@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace CompanyC.Api;
 
-public sealed class EmployeeService
+public sealed class EmployeeService : IEmployeeService
 {
     private readonly Lock _lock = new();
     private readonly List<Employee> _employees = [];
