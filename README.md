@@ -162,3 +162,58 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
 - **JsonSerializerOptions 사전 정의**: 리플렉션 캐시 재사용을 위해 `static readonly`로 선언
 - **CQRS Handler 인터페이스**: DI 기반 테스트(Moq) 지원을 위한 인터페이스 추출
 - **전역 using 관리**: 외부 네임스페이스는 `GlobalUsings.cs`에 집중 관리
+
+## ExtraFields 컬럼명 보안 (SQL Injection 방지)
+
+CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `ExtraFields`로 처리되어 SQLite에 동적 컬럼으로 추가됩니다. 이때 SQL Injection을 방지하기 위해 **컬럼명 whitelist 검증**이 적용됩니다.
+
+### 허용되는 컬럼명 규칙
+
+| 규칙 | 설명 | 예시 |
+|------|------|------|
+| 문자 구성 | 영문(a-z, A-Z), 숫자(0-9), 밑줄(_)만 허용 (한글 불가) | `Department`, `team_name` |
+| 첫 글자 | 숫자로 시작 불가 | `rank1` (O), `1rank` (X) |
+| 길이 제한 | 최대 128자 | - |
+| 제어 문자 | null 바이트 등 제어 문자 포함 불가 | - |
+| 예약어 | 기본 컬럼명(Id, Name, Email, Tel, Joined) 사용 불가 | - |
+
+### 유효한 ExtraFields 키 예시
+
+```json
+[
+  {
+    "name": "김철수",
+    "email": "charles@clovf.com",
+    "tel": "01075312468",
+    "joined": "2018-03-07",
+    "department": "개발팀",
+    "position": "선임",
+    "team_code": "A01"
+  }
+]
+```
+
+위 예시에서 `department`, `position`, `team_code`는 규칙에 부합하므로 DB 컬럼으로 동적 생성됩니다.
+
+### 거부되는 키 (무시됨)
+
+```json
+{
+  "x'); DROP TABLE Employees;--": "악성값",
+  "col name with spaces": "공백 포함",
+  "special!@#chars": "특수문자 포함",
+  "직급": "한글 컬럼명 불가"
+}
+```
+
+위 키들은 정규식 검증에 실패하여 **조용히 무시**됩니다 (예외 발생 없음, 정상 데이터는 저장됨).
+
+### 검증 위치
+
+컬럼명 검증은 `SqliteEmployeeRepository.IsValidColumnName()` 메서드에서 수행됩니다:
+
+```
+정규식 패턴: ^[a-zA-Z_][a-zA-Z_\d]*$
+```
+
+검증 규칙을 변경하려면 `SqliteEmployeeRepository.cs`의 `SafeColumnNamePattern()`과 `IsValidColumnName()` 메서드를 수정하세요.

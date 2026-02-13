@@ -101,4 +101,5 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - record 인스턴스화는 Named Arguments 생성자 방식 (속성 초기화 금지) - `.claude/skills/enforcing-record-constructor-initialization/` 참조
 - `JsonSerializerOptions`는 `static readonly`로 선언 - `.claude/skills/enforcing-json-options-predefine/` 참조
 - 외부 네임스페이스는 `GlobalUsings.cs`에 집중 관리 - `.claude/skills/managing-global-usings/` 참조
+- `Regex`는 `[GeneratedRegex]` Source Generator로 선언 - `.claude/skills/enforcing-generated-regex/` 참조
 - 브랜치 + PR 워크플로우 (의미 있는 커밋) - `.claude/skills/managing-branch-pr-workflow/` 참조

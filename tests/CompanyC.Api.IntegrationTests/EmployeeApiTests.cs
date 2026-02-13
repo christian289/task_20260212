@@ -160,6 +160,44 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
         Assert.Equal("01075312468", body.Data[0].Tel);
     }
 
+    // === POST /api/employee - SQL Injection 방지 ===
+
+    [Fact]
+    public async Task PostJson_WithSqlInjectionColumnName_IgnoresMaliciousKey()
+    {
+        var client = CreateIsolatedClient();
+        var json = """
+        [
+            {"name":"김보안","email":"secure@test.com","tel":"01099999999","joined":"2024-01-01","x'); DROP TABLE Employees;--":"악성값"}
+        ]
+        """;
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync("/api/employee", content);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        // 정상 데이터는 저장되어야 함
+        var getResponse = await client.GetAsync("/api/employee/김보안");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostCsv_WithSqlInjectionHeader_IgnoresMaliciousColumn()
+    {
+        var client = CreateIsolatedClient();
+        var csv = "name,email,tel,joined,\"Robert'); DROP TABLE Employees;--\"\n김보안,secure@test.com,01099999999,2024.01.01,악성값";
+        var content = new StringContent(csv, Encoding.UTF8, "text/csv");
+
+        var response = await client.PostAsync("/api/employee", content);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        // 테이블이 여전히 존재하고 데이터가 조회됨
+        var getResponse = await client.GetAsync("/api/employee/김보안");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+    }
+
     // === POST /api/employee - 빈 요청 ===
 
     [Fact]
