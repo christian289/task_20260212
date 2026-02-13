@@ -41,7 +41,7 @@ private sealed class EmployeeDto
     public string Name { get; set; } = "";
     public string Email { get; set; } = "";
     public string Phone { get; set; } = "";
-    public DateTime JoinedDate { get; set; }
+    public DateTime Joined { get; set; }
 }
 
 // JSON 역직렬화용 DTO를 class로 구현
@@ -73,7 +73,7 @@ private sealed record EmployeeDto(
     string Name,
     string Email,
     string Phone,
-    DateTime JoinedDate);
+    DateTime Joined);
 
 // JSON 역직렬화용 DTO도 record로 구현
 private sealed record JsonEmployeeDto(

@@ -43,7 +43,7 @@ public sealed class JsonEmployeeParser : IEmployeeParser
                 Name = name.Trim(),
                 Email = email.Trim(),
                 Phone = tel.Trim(),
-                JoinedDate = TryParseDate(joined, out var d) ? d : default,
+                Joined = TryParseDate(joined, out var d) ? d : default,
                 ExtraFields = extraFields
             });
         }

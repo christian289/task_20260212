@@ -40,7 +40,7 @@ public sealed class EmployeeApiMockTests : IDisposable
     {
         var employees = new List<Employee>
         {
-            new() { Name = "김테스트", Email = "test@test.com", Phone = "01012345678", JoinedDate = new DateTime(2020, 1, 1) }
+            new() { Name = "김테스트", Email = "test@test.com", Phone = "01012345678", Joined = new DateTime(2020, 1, 1) }
         };
         _mockService.Setup(s => s.GetAll(2, 5))
             .Returns((employees.AsReadOnly() as IReadOnlyList<Employee>, 11));
@@ -71,7 +71,7 @@ public sealed class EmployeeApiMockTests : IDisposable
             Name = "박모크",
             Email = "mock@test.com",
             Phone = "01099998888",
-            JoinedDate = new DateTime(2022, 6, 15)
+            Joined = new DateTime(2022, 6, 15)
         };
         _mockService.Setup(s => s.GetByName("박모크"))
             .Returns(employee);
@@ -90,7 +90,7 @@ public sealed class EmployeeApiMockTests : IDisposable
     {
         var parsed = new List<Employee>
         {
-            new() { Name = "김파싱", Email = "parse@test.com", Phone = "01011112222", JoinedDate = new DateTime(2020, 5, 1) }
+            new() { Name = "김파싱", Email = "parse@test.com", Phone = "01011112222", Joined = new DateTime(2020, 5, 1) }
         };
         _mockService.Setup(s => s.Parse(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
             .Returns(parsed);

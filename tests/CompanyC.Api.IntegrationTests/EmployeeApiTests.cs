@@ -196,5 +196,5 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
 
     private sealed record CreatedResponse(int Count, EmployeeDto[] Data);
 
-    private sealed record EmployeeDto(string Name, string Email, string Phone, DateTime JoinedDate);
+    private sealed record EmployeeDto(string Name, string Email, string Phone, DateTime Joined);
 }

@@ -59,14 +59,14 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - `GET /scalar/v1` - Scalar API documentation UI
 
 ## Architecture
-- **Employee**: `sealed class` with required fields (Name, Email, Phone, JoinedDate) + `Dictionary<string, string> ExtraFields`
+- **Employee**: `sealed class` with required fields (Name, Email, Phone, Joined) + `Dictionary<string, string> ExtraFields`
 - **Parser**: `IEmployeeParser` interface with `CanParse(contentType, extension)` strategy pattern
   - `CsvEmployeeParser`: CSV/text/plain parsing (헤더 감지 시 ExtraFields 지원, 미감지 시 heuristic)
   - `JsonEmployeeParser`: JSON parsing (unknown keys → ExtraFields)
   - New formats: implement `IEmployeeParser` + register in DI
 - **Repository**: `IEmployeeRepository` → `SqliteEmployeeRepository` (SQLite, WAL mode, dynamic columns)
   - ExtraFields는 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
-  - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Phone, JoinedDate) 외 컬럼은 ExtraFields에 로딩
+  - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Phone, Joined) 외 컬럼은 ExtraFields에 로딩
 - **Service**: `IEmployeeService` → `EmployeeService` (parser orchestration + repository delegation)
 
 ## Conventions

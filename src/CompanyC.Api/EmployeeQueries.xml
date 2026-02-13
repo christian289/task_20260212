@@ -7,7 +7,7 @@
         Name TEXT NOT NULL,
         Email TEXT NOT NULL,
         Phone TEXT NOT NULL,
-        JoinedDate TEXT NOT NULL
+        Joined TEXT NOT NULL
     )
   </Query>
   <Query Name="TableInfo">PRAGMA table_info(Employees)</Query>

@@ -21,7 +21,12 @@
       "Bash(curl:*)",
       "Bash(python -m json.tool:*)",
       "Bash(taskkill:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(git -C D:/Github/task_20260212 diff --stat)",
+      "Bash(git -C D:/Github/task_20260212 status --short)",
+      "Bash(git -C D:/Github/task_20260212 status)",
+      "Bash(git -C D:/Github/task_20260212 log --oneline -10)",
+      "Bash(git -C D:/Github/task_20260212 diff HEAD --stat)"
     ]
   },
   "hooks": {

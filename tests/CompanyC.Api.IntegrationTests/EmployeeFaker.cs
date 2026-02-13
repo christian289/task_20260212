@@ -11,7 +11,7 @@ public static class EmployeeFaker
             Name = f.PickRandom(Surnames) + f.PickRandom(GivenChars) + f.PickRandom(GivenChars),
             Email = f.Internet.Email(),
             Phone = "010" + f.Random.Number(10000000, 99999999).ToString(),
-            JoinedDate = f.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31))
+            Joined = f.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31))
         });
 
     private static readonly JsonSerializerOptions JsonWriteOptions = new()
@@ -28,7 +28,7 @@ public static class EmployeeFaker
         var sb = new StringBuilder();
         foreach (var e in employees)
         {
-            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.JoinedDate:yyyy.MM.dd}");
+            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.Joined:yyyy.MM.dd}");
         }
         return sb.ToString();
     }
@@ -41,7 +41,7 @@ public static class EmployeeFaker
             name = e.Name,
             email = e.Email,
             tel = e.Phone,
-            joined = e.JoinedDate.ToString("yyyy-MM-dd")
+            joined = e.Joined.ToString("yyyy-MM-dd")
         }).ToList();
         return JsonSerializer.Serialize(data, JsonWriteOptions);
     }

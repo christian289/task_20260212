@@ -63,7 +63,7 @@ public sealed class EmployeeBogusTests : IDisposable
         // Register via CSV format
         var sb = new StringBuilder();
         foreach (var e in employees)
-            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.JoinedDate:yyyy.MM.dd}");
+            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.Joined:yyyy.MM.dd}");
         var content = new StringContent(sb.ToString(), Encoding.UTF8, "text/csv");
         await client.PostAsync("/api/employee", content);
 
@@ -111,7 +111,7 @@ public sealed class EmployeeBogusTests : IDisposable
         // Build CSV and post
         var sb = new StringBuilder();
         foreach (var e in employees)
-            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.JoinedDate:yyyy.MM.dd}");
+            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.Joined:yyyy.MM.dd}");
         var content = new StringContent(sb.ToString(), Encoding.UTF8, "text/csv");
         await client.PostAsync("/api/employee", content);
 
@@ -139,7 +139,7 @@ public sealed class EmployeeBogusTests : IDisposable
             name = e.Name,
             email = e.Email,
             tel = e.Phone,
-            joined = e.JoinedDate.ToString("yyyy-MM-dd")
+            joined = e.Joined.ToString("yyyy-MM-dd")
         }).ToList();
         var jsonStr = JsonSerializer.Serialize(jsonArray);
         var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");

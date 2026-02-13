@@ -87,7 +87,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                 Name = name,
                 Email = email,
                 Phone = phone,
-                JoinedDate = joinedDate,
+                Joined = joinedDate,
                 ExtraFields = extraFields
             });
         }
@@ -133,7 +133,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             if (email is null || phone is null)
                 continue;
 
-            result.Add(new Employee { Name = name, Email = email, Phone = phone, JoinedDate = joinedDate });
+            result.Add(new Employee { Name = name, Email = email, Phone = phone, Joined = joinedDate });
         }
 
         return result;
