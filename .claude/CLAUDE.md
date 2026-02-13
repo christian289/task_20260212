@@ -20,17 +20,20 @@ Company C 입사과제 - 직원 긴급 연락망 API (ASP.NET Core Minimal API, 
 CompanyC.slnx                          # Solution file
 src/CompanyC.Api/                      # API project (Minimal API)
   GlobalUsings.cs                      # Global using declarations
-  Employee.cs                          # Employee record model
+  Employee.cs                          # Employee class (required fields + ExtraFields)
+  IEmployeeParser.cs                   # Parser interface (CanParse + Parse)
+  CsvEmployeeParser.cs                 # CSV format parser
+  JsonEmployeeParser.cs                # JSON format parser (captures unknown keys)
   IEmployeeRepository.cs               # Repository interface (data access)
   SqliteEmployeeRepository.cs          # SQLite repository implementation
   EmployeeQueries.xml                  # SQL queries (Content, copied to output)
   QueryLoader.cs                       # XML query loader
   IEmployeeService.cs                  # Service interface (for DI/Moq)
-  EmployeeService.cs                   # Business logic + CSV/JSON parsing
+  EmployeeService.cs                   # Business logic + parser orchestration
   Program.cs                           # Endpoints + DI + OpenAPI/Scalar
 tests/CompanyC.Api.IntegrationTests/   # Integration tests (xUnit)
   GlobalUsings.cs                      # Global using declarations
-  TestWebApplicationFactory.cs           # Isolated test factory (temp SQLite DB)
+  TestWebApplicationFactory.cs         # Isolated test factory (temp SQLite DB)
   EmployeeApiTests.cs                  # 10 integration tests
   EmployeeApiMockTests.cs             # 4 Moq-based unit tests
   EmployeeBogusTests.cs               # 6 Bogus data-driven tests
@@ -55,9 +58,18 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - `GET /openapi/v1.json` - OpenAPI specification
 - `GET /scalar/v1` - Scalar API documentation UI
 
+## Architecture
+- **Employee**: `sealed class` with required fields (Name, Email, Phone, JoinedDate) + `Dictionary<string, string> ExtraFields`
+- **Parser**: `IEmployeeParser` interface with `CanParse(contentType, extension)` strategy pattern
+  - `CsvEmployeeParser`: CSV/text/plain parsing (heuristic token matching)
+  - `JsonEmployeeParser`: JSON parsing (unknown keys → ExtraFields)
+  - New formats: implement `IEmployeeParser` + register in DI
+- **Repository**: `IEmployeeRepository` → `SqliteEmployeeRepository` (SQLite, WAL mode)
+- **Service**: `IEmployeeService` → `EmployeeService` (parser orchestration + repository delegation)
+
 ## Conventions
-- Minimal API (no controllers) - keep file count minimal
-- SQLite data persistence via Repository pattern (`IEmployeeRepository` → `SqliteEmployeeRepository`)
+- Minimal API (no controllers)
+- SQLite data persistence via Repository pattern
 - SQL queries stored in `EmployeeQueries.xml` (Content file, copied to output dir), loaded via `QueryLoader` at startup
 - DBA가 재컴파일 없이 쿼리 수정 가능한 구조 (외부 파일 기반)
 - Connection string from `Configuration.GetConnectionString("Default")`, default: `Data Source=employees.db`
@@ -65,10 +77,10 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - Korean names supported (UTF-8)
 - Integration tests use `TestWebApplicationFactory` with isolated temp SQLite DB per test
 - `IEmployeeService` interface for DI testability (Moq support)
-- Bogus `Faker<Employee>` uses `CustomInstantiator` (positional record has no parameterless constructor)
+- Bogus `Faker<Employee>` uses `CustomInstantiator` (class with required properties)
 
 ## Coding Standards (Skills)
-- DTOs must be `record` (not `class`) - see `.claude/skills/enforcing-dto-record/`
+- Response DTOs must be `record` (not `class`) - see `.claude/skills/enforcing-dto-record/`
 - Record instantiation via constructor with Named Arguments (not property initializer) - see `.claude/skills/enforcing-record-constructor-initialization/`
 - `JsonSerializerOptions` must be `static readonly` - see `.claude/skills/enforcing-json-options-predefine/`
 - External namespaces centralized in `GlobalUsings.cs` - see `.claude/skills/managing-global-usings/`

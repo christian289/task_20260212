@@ -16,6 +16,8 @@ builder.Services.AddOpenApi(options =>
 });
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=employees.db";
 builder.Services.AddSingleton<IEmployeeRepository>(_ => new SqliteEmployeeRepository(connectionString));
+builder.Services.AddSingleton<IEmployeeParser, CsvEmployeeParser>();
+builder.Services.AddSingleton<IEmployeeParser, JsonEmployeeParser>();
 builder.Services.AddSingleton<EmployeeService>();
 builder.Services.AddSingleton<IEmployeeService>(sp => sp.GetRequiredService<EmployeeService>());
 
@@ -67,7 +69,8 @@ app.MapGet("/api/employee/{name}", (IEmployeeService svc, string name) =>
 app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =>
 {
     var contentType = request.ContentType?.ToLowerInvariant() ?? "";
-    List<Employee> added;
+    string content;
+    string? fileExtension = null;
 
     // 파일 업로드
     if (contentType.Contains("multipart/form-data") && request.HasFormContentType)
@@ -78,31 +81,19 @@ app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =
             return Results.BadRequest(new ErrorResponse("No file uploaded."));
 
         using var reader = new StreamReader(file.OpenReadStream());
-        var content = await reader.ReadToEndAsync();
-        var ext = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-
-        added = ext switch
-        {
-            ".json" => EmployeeService.ParseJson(content),
-            ".csv" => EmployeeService.ParseCsv(content),
-            _ => InferAndParse(content)
-        };
+        content = await reader.ReadToEndAsync();
+        fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
     }
     // body 직접 입력
     else
     {
         using var reader = new StreamReader(request.Body);
-        var body = await reader.ReadToEndAsync();
-        if (string.IsNullOrWhiteSpace(body))
+        content = await reader.ReadToEndAsync();
+        if (string.IsNullOrWhiteSpace(content))
             return Results.BadRequest(new ErrorResponse("Request body is empty."));
-
-        if (contentType.Contains("json"))
-            added = EmployeeService.ParseJson(body);
-        else if (contentType.Contains("csv") || contentType.Contains("text/plain"))
-            added = EmployeeService.ParseCsv(body);
-        else
-            added = InferAndParse(body);
     }
+
+    var added = svc.Parse(content, contentType, fileExtension);
 
     if (added.Count == 0)
         return Results.BadRequest(new ErrorResponse("No valid employee data found."));
@@ -119,14 +110,6 @@ app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =
 .DisableAntiforgery();
 
 app.Run();
-
-static List<Employee> InferAndParse(string content)
-{
-    var trimmed = content.TrimStart();
-    return trimmed.StartsWith('[') || trimmed.StartsWith('{')
-        ? EmployeeService.ParseJson(trimmed)
-        : EmployeeService.ParseCsv(content);
-}
 
 // Response DTOs
 record PagedResponse(int Page, int PageSize, int TotalCount, int TotalPages, Employee[] Data);

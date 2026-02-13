@@ -6,11 +6,13 @@ public static class EmployeeFaker
     private static readonly string[] GivenChars = ["민", "서", "지", "수", "현", "준", "우", "하", "은", "도", "영", "재", "호", "진", "성", "경", "태", "혁"];
 
     private static readonly Faker<Employee> Faker = new Faker<Employee>()
-        .CustomInstantiator(f => new Employee(
-            Name: f.PickRandom(Surnames) + f.PickRandom(GivenChars) + f.PickRandom(GivenChars),
-            Email: f.Internet.Email(),
-            Phone: "010" + f.Random.Number(10000000, 99999999).ToString(),
-            JoinedDate: f.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31))));
+        .CustomInstantiator(f => new Employee
+        {
+            Name = f.PickRandom(Surnames) + f.PickRandom(GivenChars) + f.PickRandom(GivenChars),
+            Email = f.Internet.Email(),
+            Phone = "010" + f.Random.Number(10000000, 99999999).ToString(),
+            JoinedDate = f.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31))
+        });
 
     private static readonly JsonSerializerOptions JsonWriteOptions = new()
     {

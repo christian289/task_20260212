@@ -3,6 +3,7 @@ namespace CompanyC.Api;
 public sealed class SqliteEmployeeRepository : IEmployeeRepository
 {
     private readonly string _connectionString;
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public SqliteEmployeeRepository(string connectionString)
     {
@@ -42,11 +43,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
         using var reader = selectCmd.ExecuteReader();
         while (reader.Read())
         {
-            items.Add(new Employee(
-                Name: reader.GetString(0),
-                Email: reader.GetString(1),
-                Phone: reader.GetString(2),
-                JoinedDate: DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd", CultureInfo.InvariantCulture)));
+            items.Add(ReadEmployee(reader));
         }
 
         return (items, totalCount);
@@ -62,16 +59,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
         command.Parameters.AddWithValue("@name", name);
 
         using var reader = command.ExecuteReader();
-        if (reader.Read())
-        {
-            return new Employee(
-                Name: reader.GetString(0),
-                Email: reader.GetString(1),
-                Phone: reader.GetString(2),
-                JoinedDate: DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd", CultureInfo.InvariantCulture));
-        }
-
-        return null;
+        return reader.Read() ? ReadEmployee(reader) : null;
     }
 
     public void AddRange(List<Employee> employees)
@@ -88,6 +76,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
         var emailParam = command.Parameters.Add("@email", SqliteType.Text);
         var phoneParam = command.Parameters.Add("@phone", SqliteType.Text);
         var joinedDateParam = command.Parameters.Add("@joinedDate", SqliteType.Text);
+        var extraFieldsParam = command.Parameters.Add("@extraFields", SqliteType.Text);
 
         foreach (var employee in employees)
         {
@@ -95,9 +84,29 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
             emailParam.Value = employee.Email;
             phoneParam.Value = employee.Phone;
             joinedDateParam.Value = employee.JoinedDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            extraFieldsParam.Value = employee.ExtraFields.Count > 0
+                ? JsonSerializer.Serialize(employee.ExtraFields, JsonOptions)
+                : (object)DBNull.Value;
             command.ExecuteNonQuery();
         }
 
         transaction.Commit();
+    }
+
+    private static Employee ReadEmployee(SqliteDataReader reader)
+    {
+        var extraJson = reader.IsDBNull(4) ? null : reader.GetString(4);
+        var extraFields = string.IsNullOrEmpty(extraJson)
+            ? []
+            : JsonSerializer.Deserialize<Dictionary<string, string>>(extraJson, JsonOptions) ?? [];
+
+        return new Employee
+        {
+            Name = reader.GetString(0),
+            Email = reader.GetString(1),
+            Phone = reader.GetString(2),
+            JoinedDate = DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd", CultureInfo.InvariantCulture),
+            ExtraFields = extraFields
+        };
     }
 }
