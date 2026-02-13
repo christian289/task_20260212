@@ -3,7 +3,7 @@ using CompanyC.Api.Models;
 
 namespace CompanyC.Api.Parsers;
 
-public sealed class JsonEmployeeParser : IEmployeeParser
+public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEmployeeParser
 {
     private static readonly JsonSerializerOptions JsonReadOptions = new() { PropertyNameCaseInsensitive = true };
     private static readonly string[] KnownKeys = ["name", "email", "tel", "joined"];
@@ -20,6 +20,8 @@ public sealed class JsonEmployeeParser : IEmployeeParser
     {
         try
         {
+            logger.LogDebug("JSON 파싱 시작: ContentLength={ContentLength}", content.Length);
+
             var items = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(content, JsonReadOptions)
                 ?? [];
 
@@ -53,14 +55,17 @@ public sealed class JsonEmployeeParser : IEmployeeParser
                 });
             }
 
+            logger.LogDebug("JSON 파싱 완료: {Count}건", result.Count);
             return result;
         }
         catch (JsonException ex)
         {
+            logger.LogError(ex, "JSON 파싱 중 오류 발생");
             return EmployeeErrors.ParseFailed("JSON", ex.Message);
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "JSON 파싱 중 오류 발생");
             return EmployeeErrors.ParseFailed("JSON", ex.Message);
         }
     }

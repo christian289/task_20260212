@@ -6,6 +6,7 @@ namespace CompanyC.Api.Repositories;
 public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
 {
     private readonly string _connectionString;
+    private readonly ILogger<SqliteEmployeeRepository> _logger;
     private static readonly HashSet<string> BaseColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         "Id", "Name", "Email", "Tel", "Joined"
@@ -14,9 +15,10 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
     [GeneratedRegex(@"^[a-zA-Z_][a-zA-Z_\d]*$")]
     private static partial Regex SafeColumnNamePattern();
 
-    public SqliteEmployeeRepository(string connectionString)
+    public SqliteEmployeeRepository(string connectionString, ILogger<SqliteEmployeeRepository> logger)
     {
         _connectionString = connectionString;
+        _logger = logger;
         InitializeDatabase();
     }
 
@@ -41,6 +43,8 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
         using var createCmd = connection.CreateCommand();
         createCmd.CommandText = QueryLoader.Get("CreateTable");
         createCmd.ExecuteNonQuery();
+
+        _logger.LogInformation("SQLite 데이터베이스 초기화 완료");
     }
 
     public (IReadOnlyList<Employee> Items, int TotalCount) GetAll(int page, int pageSize)
@@ -136,11 +140,13 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                 command.ExecuteNonQuery();
             }
 
+            _logger.LogDebug("{Count}건 INSERT 완료", employees.Count);
             transaction.Commit();
             return Result.Success;
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "직원 데이터 저장 중 오류 발생");
             return EmployeeErrors.StorageFailed(ex.Message);
         }
     }
@@ -155,12 +161,16 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                 continue;
 
             if (!IsValidColumnName(col))
+            {
+                _logger.LogWarning("유효하지 않은 컬럼명 무시: {ColumnName}", col);
                 continue;
+            }
 
             using var alterCmd = connection.CreateCommand();
             alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), $"\"{col}\"");
             alterCmd.ExecuteNonQuery();
             existingColumns.Add(col);
+            _logger.LogInformation("동적 컬럼 추가: {ColumnName}", col);
         }
     }
 

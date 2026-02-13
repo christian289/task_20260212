@@ -3,7 +3,7 @@ using CompanyC.Api.Models;
 
 namespace CompanyC.Api.Parsers;
 
-public sealed class CsvEmployeeParser : IEmployeeParser
+public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmployeeParser
 {
     private static readonly HashSet<string> KnownHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -23,6 +23,8 @@ public sealed class CsvEmployeeParser : IEmployeeParser
     {
         try
         {
+            logger.LogDebug("CSV 파싱 시작: ContentLength={ContentLength}", content.Length);
+
             var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(l => l.Trim())
                 .Where(l => !string.IsNullOrWhiteSpace(l))
@@ -35,12 +37,16 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             var firstLineParts = lines[0].Split(',').Select(p => p.Trim()).ToArray();
             var hasHeader = firstLineParts.Any(p => KnownHeaders.Contains(p));
 
-            return hasHeader
+            var result = hasHeader
                 ? ParseWithHeaders(lines, firstLineParts)
                 : ParseHeuristic(lines);
+
+            logger.LogDebug("CSV 파싱 완료: {Count}건", result.Count);
+            return result;
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "CSV 파싱 중 오류 발생");
             return EmployeeErrors.ParseFailed("CSV", ex.Message);
         }
     }
