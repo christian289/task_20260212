@@ -3,7 +3,10 @@ namespace CompanyC.Api;
 public sealed class SqliteEmployeeRepository : IEmployeeRepository
 {
     private readonly string _connectionString;
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private static readonly HashSet<string> BaseColumns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Id", "Name", "Email", "Phone", "JoinedDate"
+    };
 
     public SqliteEmployeeRepository(string connectionString)
     {
@@ -64,48 +67,112 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
 
     public void AddRange(List<Employee> employees)
     {
+        if (employees.Count == 0)
+            return;
+
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
 
+        // 새로운 ExtraFields 컬럼이 필요하면 동적으로 추가
+        var extraKeys = employees
+            .SelectMany(e => e.ExtraFields.Keys)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (extraKeys.Count > 0)
+            EnsureColumns(connection, extraKeys);
+
+        // 동적 INSERT 구성
+        var allColumns = new List<string> { "Name", "Email", "Phone", "JoinedDate" };
+        allColumns.AddRange(extraKeys);
+
+        var paramNames = allColumns.Select((_, i) => $"@p{i}").ToList();
+        var insertSql = $"INSERT INTO Employees ({string.Join(", ", allColumns)}) VALUES ({string.Join(", ", paramNames)})";
+
         using var transaction = connection.BeginTransaction();
-
         using var command = connection.CreateCommand();
-        command.CommandText = QueryLoader.Get("Insert");
+        command.CommandText = insertSql;
 
-        var nameParam = command.Parameters.Add("@name", SqliteType.Text);
-        var emailParam = command.Parameters.Add("@email", SqliteType.Text);
-        var phoneParam = command.Parameters.Add("@phone", SqliteType.Text);
-        var joinedDateParam = command.Parameters.Add("@joinedDate", SqliteType.Text);
-        var extraFieldsParam = command.Parameters.Add("@extraFields", SqliteType.Text);
+        var parameters = new SqliteParameter[allColumns.Count];
+        for (var i = 0; i < allColumns.Count; i++)
+        {
+            parameters[i] = command.Parameters.Add($"@p{i}", SqliteType.Text);
+        }
 
         foreach (var employee in employees)
         {
-            nameParam.Value = employee.Name;
-            emailParam.Value = employee.Email;
-            phoneParam.Value = employee.Phone;
-            joinedDateParam.Value = employee.JoinedDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            extraFieldsParam.Value = employee.ExtraFields.Count > 0
-                ? JsonSerializer.Serialize(employee.ExtraFields, JsonOptions)
-                : (object)DBNull.Value;
+            parameters[0].Value = employee.Name;
+            parameters[1].Value = employee.Email;
+            parameters[2].Value = employee.Phone;
+            parameters[3].Value = employee.JoinedDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            for (var i = 4; i < allColumns.Count; i++)
+            {
+                var key = allColumns[i];
+                parameters[i].Value = employee.ExtraFields.TryGetValue(key, out var val)
+                    ? val
+                    : (object)DBNull.Value;
+            }
+
             command.ExecuteNonQuery();
         }
 
         transaction.Commit();
     }
 
+    private void EnsureColumns(SqliteConnection connection, List<string> requiredColumns)
+    {
+        var existingColumns = GetExistingColumns(connection);
+
+        foreach (var col in requiredColumns)
+        {
+            if (!existingColumns.Contains(col))
+            {
+                using var alterCmd = connection.CreateCommand();
+                alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), col);
+                alterCmd.ExecuteNonQuery();
+                existingColumns.Add(col);
+            }
+        }
+    }
+
+    private HashSet<string> GetExistingColumns(SqliteConnection connection)
+    {
+        var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = QueryLoader.Get("TableInfo");
+
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            columns.Add(reader.GetString(1)); // column name is at index 1
+        }
+
+        return columns;
+    }
+
     private static Employee ReadEmployee(SqliteDataReader reader)
     {
-        var extraJson = reader.IsDBNull(4) ? null : reader.GetString(4);
-        var extraFields = string.IsNullOrEmpty(extraJson)
-            ? []
-            : JsonSerializer.Deserialize<Dictionary<string, string>>(extraJson, JsonOptions) ?? [];
+        var extraFields = new Dictionary<string, string>();
+
+        for (var i = 0; i < reader.FieldCount; i++)
+        {
+            var columnName = reader.GetName(i);
+            if (BaseColumns.Contains(columnName) || reader.IsDBNull(i))
+                continue;
+
+            extraFields[columnName] = reader.GetString(i);
+        }
 
         return new Employee
         {
-            Name = reader.GetString(0),
-            Email = reader.GetString(1),
-            Phone = reader.GetString(2),
-            JoinedDate = DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd", CultureInfo.InvariantCulture),
+            Name = reader.GetString(reader.GetOrdinal("Name")),
+            Email = reader.GetString(reader.GetOrdinal("Email")),
+            Phone = reader.GetString(reader.GetOrdinal("Phone")),
+            JoinedDate = DateTime.ParseExact(
+                reader.GetString(reader.GetOrdinal("JoinedDate")),
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture),
             ExtraFields = extraFields
         };
     }
