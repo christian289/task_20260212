@@ -1,3 +1,4 @@
+using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
 
 namespace CompanyC.Api.Parsers;
@@ -15,42 +16,53 @@ public sealed class JsonEmployeeParser : IEmployeeParser
         return contentType is not null && contentType.Contains("json");
     }
 
-    public List<Employee> Parse(string content)
+    public ErrorOr<List<Employee>> Parse(string content)
     {
-        var items = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(content, JsonReadOptions)
-            ?? [];
-
-        var result = new List<Employee>();
-
-        foreach (var item in items)
+        try
         {
-            var name = GetString(item, "name");
-            var email = GetString(item, "email");
+            var items = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(content, JsonReadOptions)
+                ?? [];
 
-            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
-                continue;
+            var result = new List<Employee>();
 
-            var tel = GetString(item, "tel") ?? string.Empty;
-            var joined = GetString(item, "joined");
-
-            var extraFields = new Dictionary<string, string>();
-            foreach (var kvp in item)
+            foreach (var item in items)
             {
-                if (!KnownKeys.Contains(kvp.Key.ToLowerInvariant()))
-                    extraFields[kvp.Key] = kvp.Value.ToString();
+                var name = GetString(item, "name");
+                var email = GetString(item, "email");
+
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
+                    continue;
+
+                var tel = GetString(item, "tel") ?? string.Empty;
+                var joined = GetString(item, "joined");
+
+                var extraFields = new Dictionary<string, string>();
+                foreach (var kvp in item)
+                {
+                    if (!KnownKeys.Contains(kvp.Key.ToLowerInvariant()))
+                        extraFields[kvp.Key] = kvp.Value.ToString();
+                }
+
+                result.Add(new Employee
+                {
+                    Name = name.Trim(),
+                    Email = email.Trim(),
+                    Tel = tel.Trim(),
+                    Joined = TryParseDate(joined, out var d) ? d : default,
+                    ExtraFields = extraFields
+                });
             }
 
-            result.Add(new Employee
-            {
-                Name = name.Trim(),
-                Email = email.Trim(),
-                Tel = tel.Trim(),
-                Joined = TryParseDate(joined, out var d) ? d : default,
-                ExtraFields = extraFields
-            });
+            return result;
         }
-
-        return result;
+        catch (JsonException ex)
+        {
+            return EmployeeErrors.ParseFailed("JSON", ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return EmployeeErrors.ParseFailed("JSON", ex.Message);
+        }
     }
 
     private static string? GetString(Dictionary<string, JsonElement> item, string key)

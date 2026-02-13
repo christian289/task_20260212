@@ -1,3 +1,4 @@
+using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
 
 namespace CompanyC.Api.Parsers;
@@ -18,23 +19,30 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             && (contentType.Contains("csv") || contentType.Contains("text/plain"));
     }
 
-    public List<Employee> Parse(string content)
+    public ErrorOr<List<Employee>> Parse(string content)
     {
-        var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(l => l.Trim())
-            .Where(l => !string.IsNullOrWhiteSpace(l))
-            .ToList();
+        try
+        {
+            var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .ToList();
 
-        if (lines.Count == 0)
-            return [];
+            if (lines.Count == 0)
+                return new List<Employee>();
 
-        // 헤더 행 감지: 첫 줄에 알려진 필드명이 포함되어 있는지 확인
-        var firstLineParts = lines[0].Split(',').Select(p => p.Trim()).ToArray();
-        var hasHeader = firstLineParts.Any(p => KnownHeaders.Contains(p));
+            // 헤더 행 감지: 첫 줄에 알려진 필드명이 포함되어 있는지 확인
+            var firstLineParts = lines[0].Split(',').Select(p => p.Trim()).ToArray();
+            var hasHeader = firstLineParts.Any(p => KnownHeaders.Contains(p));
 
-        return hasHeader
-            ? ParseWithHeaders(lines, firstLineParts)
-            : ParseHeuristic(lines);
+            return hasHeader
+                ? ParseWithHeaders(lines, firstLineParts)
+                : ParseHeuristic(lines);
+        }
+        catch (Exception ex)
+        {
+            return EmployeeErrors.ParseFailed("CSV", ex.Message);
+        }
     }
 
     private static List<Employee> ParseWithHeaders(List<string> lines, string[] headers)
