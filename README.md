@@ -171,7 +171,7 @@ CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `Ext
 
 | 규칙 | 설명 | 예시 |
 |------|------|------|
-| 문자 구성 | 영문(a-z, A-Z), 한글(가-힣), 숫자(0-9), 밑줄(_) | `Department`, `부서`, `team_name` |
+| 문자 구성 | 영문(a-z, A-Z), 숫자(0-9), 밑줄(_)만 허용 (한글 불가) | `Department`, `team_name` |
 | 첫 글자 | 숫자로 시작 불가 | `rank1` (O), `1rank` (X) |
 | 길이 제한 | 최대 128자 | - |
 | 제어 문자 | null 바이트 등 제어 문자 포함 불가 | - |
@@ -187,13 +187,13 @@ CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `Ext
     "tel": "01075312468",
     "joined": "2018-03-07",
     "department": "개발팀",
-    "직급": "선임",
+    "position": "선임",
     "team_code": "A01"
   }
 ]
 ```
 
-위 예시에서 `department`, `직급`, `team_code`는 규칙에 부합하므로 DB 컬럼으로 동적 생성됩니다.
+위 예시에서 `department`, `position`, `team_code`는 규칙에 부합하므로 DB 컬럼으로 동적 생성됩니다.
 
 ### 거부되는 키 (무시됨)
 
@@ -201,7 +201,8 @@ CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `Ext
 {
   "x'); DROP TABLE Employees;--": "악성값",
   "col name with spaces": "공백 포함",
-  "special!@#chars": "특수문자 포함"
+  "special!@#chars": "특수문자 포함",
+  "직급": "한글 컬럼명 불가"
 }
 ```
 
@@ -212,7 +213,7 @@ CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `Ext
 컬럼명 검증은 `SqliteEmployeeRepository.IsValidColumnName()` 메서드에서 수행됩니다:
 
 ```
-정규식 패턴: ^[a-zA-Z가-힣_][a-zA-Z가-힣_\d]*$
+정규식 패턴: ^[a-zA-Z_][a-zA-Z_\d]*$
 ```
 
 검증 규칙을 변경하려면 `SqliteEmployeeRepository.cs`의 `SafeColumnNamePattern()`과 `IsValidColumnName()` 메서드를 수정하세요.

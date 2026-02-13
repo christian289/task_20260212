@@ -8,7 +8,7 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
         "Id", "Name", "Email", "Tel", "Joined"
     };
 
-    [GeneratedRegex(@"^[a-zA-Z가-힣_][a-zA-Z가-힣_\d]*$")]
+    [GeneratedRegex(@"^[a-zA-Z_][a-zA-Z_\d]*$")]
     private static partial Regex SafeColumnNamePattern();
 
     public SqliteEmployeeRepository(string connectionString)
