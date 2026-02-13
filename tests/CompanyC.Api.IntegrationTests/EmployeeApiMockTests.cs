@@ -1,3 +1,7 @@
+using CompanyC.Api.Commands;
+using CompanyC.Api.Models;
+using CompanyC.Api.Queries;
+
 namespace CompanyC.Api.IntegrationTests;
 
 public sealed class EmployeeApiMockTests : IDisposable
