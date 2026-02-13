@@ -48,7 +48,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             string? name = null;
             string? email = null;
             string? phone = null;
-            DateTime joinedDate = default;
+            DateTime joined = default;
             var extraFields = new Dictionary<string, string>();
 
             for (var j = 0; j < headers.Length && j < values.Length; j++)
@@ -71,7 +71,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                         phone = value;
                         break;
                     case "joined" or "joineddate":
-                        TryParseDate(value, out joinedDate);
+                        TryParseDate(value, out joined);
                         break;
                     default:
                         extraFields[headers[j]] = value;
@@ -87,7 +87,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                 Name = name,
                 Email = email,
                 Phone = phone,
-                Joined = joinedDate,
+                Joined = joined,
                 ExtraFields = extraFields
             });
         }
@@ -112,7 +112,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             var name = parts[0];
             string? email = null;
             string? phone = null;
-            DateTime joinedDate = default;
+            DateTime joined = default;
 
             var tokens = parts.Skip(1)
                 .SelectMany(p => p.Split(' ', StringSplitOptions.RemoveEmptyEntries))
@@ -125,7 +125,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                 if (token.Contains('@'))
                     email = token;
                 else if (TryParseDate(token, out var date))
-                    joinedDate = date;
+                    joined = date;
                 else if (IsPhoneNumber(token))
                     phone = token;
             }
@@ -133,7 +133,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             if (email is null || phone is null)
                 continue;
 
-            result.Add(new Employee { Name = name, Email = email, Phone = phone, Joined = joinedDate });
+            result.Add(new Employee { Name = name, Email = email, Phone = phone, Joined = joined });
         }
 
         return result;

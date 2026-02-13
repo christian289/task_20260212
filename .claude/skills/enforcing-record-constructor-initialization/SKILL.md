@@ -43,7 +43,7 @@ result.Add(new Employee
     Name = name,
     Email = email,
     Phone = phone,
-    Joined = joinedDate
+    Joined = joined
 });
 ```
 
@@ -65,7 +65,7 @@ var employee = new Employee(
     Joined: new DateTime(2018, 3, 7));
 
 // 파싱 시에도 생성자 초기화
-result.Add(new Employee(name, email, phone, joinedDate));
+result.Add(new Employee(name, email, phone, joined));
 
 // 짧은 경우 한 줄로 표현 가능
 var emp = new Employee(Name: "박영희", Email: "matilda@clovf.com", Phone: "01087654321", Joined: default);
