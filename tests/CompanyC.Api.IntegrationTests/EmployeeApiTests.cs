@@ -1,10 +1,10 @@
 namespace CompanyC.Api.IntegrationTests;
 
-public sealed class EmployeeApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClassFixture<TestWebApplicationFactory>, IDisposable
 {
     private readonly HttpClient _client = factory.CreateClient();
     private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
-    private readonly List<WebApplicationFactory<Program>> _factories = [];
+    private readonly List<TestWebApplicationFactory> _factories = [];
 
     public void Dispose()
     {
@@ -175,9 +175,9 @@ public sealed class EmployeeApiTests(WebApplicationFactory<Program> factory) : I
 
     private HttpClient CreateIsolatedClient()
     {
-        var factory = new WebApplicationFactory<Program>();
-        _factories.Add(factory);
-        return factory.CreateClient();
+        var f = new TestWebApplicationFactory();
+        _factories.Add(f);
+        return f.CreateClient();
     }
 
     private static async Task PostCsvBody(HttpClient client, string csv)

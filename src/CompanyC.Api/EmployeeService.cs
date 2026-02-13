@@ -2,39 +2,22 @@ namespace CompanyC.Api;
 
 public sealed class EmployeeService : IEmployeeService
 {
-    private readonly Lock _lock = new();
-    private readonly List<Employee> _employees = [];
+    private readonly IEmployeeRepository _repository;
     private static readonly JsonSerializerOptions JsonReadOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public (IReadOnlyList<Employee> Items, int TotalCount) GetAll(int page, int pageSize)
+    public EmployeeService(IEmployeeRepository repository)
     {
-        lock (_lock)
-        {
-            var total = _employees.Count;
-            var items = _employees
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-            return (items, total);
-        }
+        _repository = repository;
     }
+
+    public (IReadOnlyList<Employee> Items, int TotalCount) GetAll(int page, int pageSize)
+        => _repository.GetAll(page, pageSize);
 
     public Employee? GetByName(string name)
-    {
-        lock (_lock)
-        {
-            return _employees.FirstOrDefault(e =>
-                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        }
-    }
+        => _repository.GetByName(name);
 
     public void AddFromParsed(List<Employee> employees)
-    {
-        lock (_lock)
-        {
-            _employees.AddRange(employees);
-        }
-    }
+        => _repository.AddRange(employees);
 
     internal static List<Employee> ParseCsv(string csv)
     {

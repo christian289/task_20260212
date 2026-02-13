@@ -4,29 +4,29 @@ public sealed class EmployeeApiMockTests : IDisposable
 {
     private readonly Mock<IEmployeeService> _mockService = new();
     private readonly HttpClient _client;
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly TestWebApplicationFactory _factory;
     private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
 
     public EmployeeApiMockTests()
     {
-        _factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
+        _factory = new TestWebApplicationFactory();
+        var factoryWithMock = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
             {
-                builder.ConfigureServices(services =>
-                {
-                    // Remove existing registrations
-                    var descriptors = services
-                        .Where(d => d.ServiceType == typeof(IEmployeeService)
-                                 || d.ServiceType == typeof(EmployeeService))
-                        .ToList();
-                    foreach (var d in descriptors)
-                        services.Remove(d);
+                // Remove existing registrations
+                var descriptors = services
+                    .Where(d => d.ServiceType == typeof(IEmployeeService)
+                             || d.ServiceType == typeof(EmployeeService))
+                    .ToList();
+                foreach (var d in descriptors)
+                    services.Remove(d);
 
-                    // Register mock
-                    services.AddSingleton(_mockService.Object);
-                });
+                // Register mock
+                services.AddSingleton(_mockService.Object);
             });
-        _client = _factory.CreateClient();
+        });
+        _client = factoryWithMock.CreateClient();
     }
 
     public void Dispose()

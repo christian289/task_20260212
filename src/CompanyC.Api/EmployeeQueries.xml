@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Queries>
+  <Query Name="EnableWalMode">PRAGMA journal_mode=WAL;</Query>
+  <Query Name="CreateTable">
+    CREATE TABLE IF NOT EXISTS Employees (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+        Name TEXT NOT NULL,
+        Email TEXT NOT NULL,
+        Phone TEXT NOT NULL,
+        JoinedDate TEXT NOT NULL
+    )
+  </Query>
+  <Query Name="Count">SELECT COUNT(*) FROM Employees</Query>
+  <Query Name="SelectPaged">
+    SELECT Name, Email, Phone, JoinedDate
+    FROM Employees
+    ORDER BY Id
+    LIMIT @limit OFFSET @offset
+  </Query>
+  <Query Name="SelectByName">
+    SELECT Name, Email, Phone, JoinedDate
+    FROM Employees
+    WHERE Name = @name COLLATE NOCASE
+    LIMIT 1
+  </Query>
+  <Query Name="Insert">
+    INSERT INTO Employees (Name, Email, Phone, JoinedDate)
+    VALUES (@name, @email, @phone, @joinedDate)
+  </Query>
+</Queries>

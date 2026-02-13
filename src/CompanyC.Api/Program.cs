@@ -14,6 +14,8 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
+var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=employees.db";
+builder.Services.AddSingleton<IEmployeeRepository>(_ => new SqliteEmployeeRepository(connectionString));
 builder.Services.AddSingleton<EmployeeService>();
 builder.Services.AddSingleton<IEmployeeService>(sp => sp.GetRequiredService<EmployeeService>());
 

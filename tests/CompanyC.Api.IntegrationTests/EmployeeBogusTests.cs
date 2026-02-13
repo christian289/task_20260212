@@ -3,7 +3,7 @@ namespace CompanyC.Api.IntegrationTests;
 public sealed class EmployeeBogusTests : IDisposable
 {
     private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
-    private readonly List<WebApplicationFactory<Program>> _factories = [];
+    private readonly List<TestWebApplicationFactory> _factories = [];
 
     public void Dispose()
     {
@@ -13,7 +13,7 @@ public sealed class EmployeeBogusTests : IDisposable
 
     private HttpClient CreateIsolatedClient()
     {
-        var factory = new WebApplicationFactory<Program>();
+        var factory = new TestWebApplicationFactory();
         _factories.Add(factory);
         return factory.CreateClient();
     }
