@@ -28,7 +28,8 @@
       "Bash(git -C D:/Github/task_20260212 log --oneline -10)",
       "Bash(git -C D:/Github/task_20260212 diff HEAD --stat)",
       "Bash(del \"D:\\\\Github\\\\task_20260212\\\\src\\\\CompanyC.Api\\\\IEmployeeService.cs\")",
-      "Bash(del \"D:\\\\Github\\\\task_20260212\\\\src\\\\CompanyC.Api\\\\EmployeeService.cs\")"
+      "Bash(del \"D:\\\\Github\\\\task_20260212\\\\src\\\\CompanyC.Api\\\\EmployeeService.cs\")",
+      "Bash(git -C D:/Github/task_20260212 log --oneline -15)"
     ]
   },
   "hooks": {

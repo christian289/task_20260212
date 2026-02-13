@@ -28,14 +28,15 @@ src/CompanyC.Api/                      # API project (Minimal API)
   SqliteEmployeeRepository.cs          # SQLite repository implementation
   EmployeeQueries.xml                  # SQL queries (Content, copied to output)
   QueryLoader.cs                       # XML query loader
-  IEmployeeService.cs                  # Service interface (for DI/Moq)
-  EmployeeService.cs                   # Business logic + parser orchestration
+  GetEmployeesQuery.cs                 # Query: paginated employee list (request + handler)
+  GetEmployeeByNameQuery.cs            # Query: employee lookup by name (request + handler)
+  AddEmployeesCommand.cs               # Command: add employees via CSV/JSON (request + handler)
   Program.cs                           # Endpoints + DI + OpenAPI/Scalar
 tests/CompanyC.Api.IntegrationTests/   # Integration tests (xUnit)
   GlobalUsings.cs                      # Global using declarations
   TestWebApplicationFactory.cs         # Isolated test factory (temp SQLite DB)
   EmployeeApiTests.cs                  # 10 integration tests
-  EmployeeApiMockTests.cs             # 4 Moq-based unit tests
+  EmployeeApiMockTests.cs             # 4 Moq-based unit tests (Handler mocks)
   EmployeeBogusTests.cs               # 6 Bogus data-driven tests
   EmployeeFaker.cs                     # Bogus test data generator (CustomInstantiator)
 tools/CompanyC.DataGen/                # CLI dummy data generator
@@ -59,6 +60,10 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - `GET /scalar/v1` - Scalar API documentation UI
 
 ## Architecture
+- **CQRS**: Query/Command 분리 — Request message record + Handler interface/class per operation
+  - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler`
+  - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler`
+  - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
 - **Employee**: `sealed class` with required fields (Name, Email, Phone, Joined) + `Dictionary<string, string> ExtraFields`
 - **Parser**: `IEmployeeParser` interface with `CanParse(contentType, extension)` strategy pattern
   - `CsvEmployeeParser`: CSV/text/plain parsing (헤더 감지 시 ExtraFields 지원, 미감지 시 heuristic)
@@ -67,10 +72,10 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - **Repository**: `IEmployeeRepository` → `SqliteEmployeeRepository` (SQLite, WAL mode, dynamic columns)
   - ExtraFields는 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
   - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Phone, Joined) 외 컬럼은 ExtraFields에 로딩
-- **Service**: `IEmployeeService` → `EmployeeService` (parser orchestration + repository delegation)
 
 ## Conventions
 - Minimal API (no controllers)
+- CQRS: Query Handler (read) / Command Handler (write) 분리, Handler 인터페이스로 DI 테스트 지원
 - SQLite data persistence via Repository pattern
 - SQL queries stored in `EmployeeQueries.xml` (Content file, copied to output dir), loaded via `QueryLoader` at startup
 - DBA가 재컴파일 없이 쿼리 수정 가능한 구조 (외부 파일 기반)
@@ -78,7 +83,6 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - CSV format: email and phone may be space-separated (e.g. `charles@clovf.com 01075312468`)
 - Korean names supported (UTF-8)
 - Integration tests use `TestWebApplicationFactory` with isolated temp SQLite DB per test
-- `IEmployeeService` interface for DI testability (Moq support)
 - Bogus `Faker<Employee>` uses `CustomInstantiator` (class with required properties)
 
 ## Coding Standards (Skills)

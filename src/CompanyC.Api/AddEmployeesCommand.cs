@@ -1,13 +1,13 @@
 namespace CompanyC.Api;
 
-record AddEmployeesCommand(string Content, string? ContentType, string? FileExtension);
+public record AddEmployeesCommand(string Content, string? ContentType, string? FileExtension);
 
 public interface IAddEmployeesCommandHandler
 {
     List<Employee> Handle(AddEmployeesCommand command);
 }
 
-sealed class AddEmployeesCommandHandler(
+public sealed class AddEmployeesCommandHandler(
     IEmployeeRepository repository,
     IEnumerable<IEmployeeParser> parsers) : IAddEmployeesCommandHandler
 {
