@@ -7,11 +7,21 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
     {
         "Id", "Name", "Email", "Tel", "Joined"
     };
+    private static readonly Regex SafeColumnNamePattern = new(@"^[a-zA-Z가-힣_][a-zA-Z가-힣_\d]*$", RegexOptions.Compiled);
 
     public SqliteEmployeeRepository(string connectionString)
     {
         _connectionString = connectionString;
         InitializeDatabase();
+    }
+
+    private static bool IsValidColumnName(string name)
+    {
+        return !string.IsNullOrWhiteSpace(name)
+            && name.Length <= 128
+            && !name.Any(char.IsControl)
+            && !BaseColumns.Contains(name)
+            && SafeColumnNamePattern.IsMatch(name);
     }
 
     private void InitializeDatabase()
@@ -77,6 +87,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
         var extraKeys = employees
             .SelectMany(e => e.ExtraFields.Keys)
             .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(IsValidColumnName)
             .ToList();
 
         if (extraKeys.Count > 0)
@@ -86,8 +97,9 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
         var allColumns = new List<string> { "Name", "Email", "Tel", "Joined" };
         allColumns.AddRange(extraKeys);
 
+        var quotedColumns = allColumns.Select(c => $"\"{c}\"");
         var paramNames = allColumns.Select((_, i) => $"@p{i}").ToList();
-        var insertSql = $"INSERT INTO Employees ({string.Join(", ", allColumns)}) VALUES ({string.Join(", ", paramNames)})";
+        var insertSql = $"INSERT INTO Employees ({string.Join(", ", quotedColumns)}) VALUES ({string.Join(", ", paramNames)})";
 
         using var transaction = connection.BeginTransaction();
         using var command = connection.CreateCommand();
@@ -126,13 +138,16 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
 
         foreach (var col in requiredColumns)
         {
-            if (!existingColumns.Contains(col))
-            {
-                using var alterCmd = connection.CreateCommand();
-                alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), col);
-                alterCmd.ExecuteNonQuery();
-                existingColumns.Add(col);
-            }
+            if (existingColumns.Contains(col))
+                continue;
+
+            if (!IsValidColumnName(col))
+                continue;
+
+            using var alterCmd = connection.CreateCommand();
+            alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), $"\"{col}\"");
+            alterCmd.ExecuteNonQuery();
+            existingColumns.Add(col);
         }
     }
 
