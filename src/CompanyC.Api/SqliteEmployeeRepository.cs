@@ -1,13 +1,15 @@
 namespace CompanyC.Api;
 
-public sealed class SqliteEmployeeRepository : IEmployeeRepository
+public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
 {
     private readonly string _connectionString;
     private static readonly HashSet<string> BaseColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         "Id", "Name", "Email", "Tel", "Joined"
     };
-    private static readonly Regex SafeColumnNamePattern = new(@"^[a-zA-Z가-힣_][a-zA-Z가-힣_\d]*$", RegexOptions.Compiled);
+
+    [GeneratedRegex(@"^[a-zA-Z가-힣_][a-zA-Z가-힣_\d]*$")]
+    private static partial Regex SafeColumnNamePattern();
 
     public SqliteEmployeeRepository(string connectionString)
     {
@@ -21,7 +23,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
             && name.Length <= 128
             && !name.Any(char.IsControl)
             && !BaseColumns.Contains(name)
-            && SafeColumnNamePattern.IsMatch(name);
+            && SafeColumnNamePattern().IsMatch(name);
     }
 
     private void InitializeDatabase()
