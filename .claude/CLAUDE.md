@@ -40,7 +40,7 @@ src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
 tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
   GlobalUsings.cs                      # 전역 using 선언
   TestWebApplicationFactory.cs         # 격리된 테스트 팩토리 (임시 SQLite DB)
-  EmployeeApiTests.cs                  # 통합 테스트 12개
+  EmployeeApiTests.cs                  # 통합 테스트 10개
   EmployeeApiMockTests.cs             # Moq 기반 단위 테스트 4개 (Handler 모킹)
   EmployeeBogusTests.cs               # Bogus 데이터 기반 테스트 6개
   EmployeeFaker.cs                     # Bogus 테스트 데이터 생성기 (CustomInstantiator)
@@ -52,7 +52,7 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
 ## 빌드 및 테스트
 ```bash
 dotnet build
-dotnet test                            # 테스트 22개 (통합 12 + Moq 4 + Bogus 6)
+dotnet test                            # 테스트 20개 (통합 10 + Moq 4 + Bogus 6)
 dotnet run --project src/CompanyC.Api  # API 서버 (Scalar UI: /scalar/v1)
 dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 ```
@@ -82,7 +82,7 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - Minimal API (컨트롤러 없음)
 - CQRS: Query Handler (읽기) / Command Handler (쓰기) 분리, Handler 인터페이스로 DI 테스트 지원
 - SQLite 데이터 영속성 (Repository 패턴)
-- SQL 쿼리는 `Repositories/EmployeeQueries.xml`에 저장 (Content 파일, 출력 디렉토리에 복사), 시작 시 `QueryLoader`로 로드
+- SQL 쿼리는 `EmployeeQueries.xml`에 저장 (Content 파일, 출력 디렉토리에 복사), 시작 시 `QueryLoader`로 로드
 - DBA가 재컴파일 없이 쿼리 수정 가능한 구조 (외부 파일 기반)
 - 연결 문자열: `Configuration.GetConnectionString("Default")`, 기본값: `Data Source=employees.db`
 - CSV 형식: 이메일과 전화번호가 공백으로 구분될 수 있음 (예: `charles@clovf.com 01075312468`)

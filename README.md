@@ -28,7 +28,7 @@ API 문서는 `http://localhost:5000/scalar/v1` 에서 Scalar UI로 확인할 �
 dotnet test
 ```
 
-22개의 테스트가 실행됩니다 (통합 12 + Moq 4 + Bogus 6, `WebApplicationFactory` 기반, 별도 서버 실행 불필요).
+20개의 테스트가 실행됩니다 (통합 10 + Moq 4 + Bogus 6, `WebApplicationFactory` 기반, 별도 서버 실행 불필요).
 
 ## API 사용법
 
@@ -135,7 +135,7 @@ src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
 tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
   GlobalUsings.cs                      # 전역 using 선언
   TestWebApplicationFactory.cs         # 격리된 테스트 팩토리 (임시 SQLite DB)
-  EmployeeApiTests.cs                  # 통합 테스트 12개
+  EmployeeApiTests.cs                  # 통합 테스트 10개
   EmployeeApiMockTests.cs              # Moq 기반 단위 테스트 4개 (Handler 모킹)
   EmployeeBogusTests.cs                # Bogus 데이터 기반 테스트 6개
   EmployeeFaker.cs                     # Bogus 테스트 데이터 생성기 (CustomInstantiator)
@@ -155,7 +155,7 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
   - WAL 모드로 동시성 처리
   - ExtraFields를 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
   - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
-- **외부 SQL 파일**: `Repositories/EmployeeQueries.xml`에서 쿼리 로드, DBA가 재컴파일 없이 수정 가능
+- **외부 SQL 파일**: `EmployeeQueries.xml`에서 쿼리 로드, DBA가 재컴파일 없이 수정 가능
 - **전략 패턴 파서**: `IEmployeeParser` 인터페이스로 CSV/JSON 파서 교체 가능
   - `CsvEmployeeParser`: CSV/text/plain 파싱 (헤더 감지 시 ExtraFields 지원)
   - `JsonEmployeeParser`: JSON 파싱 (알 수 없는 키 → ExtraFields)
