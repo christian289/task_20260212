@@ -147,20 +147,28 @@ app.MapPost("/api/employee", async (HttpRequest request, IAddEmployeesCommandHan
 
         if (contentType.Contains("multipart/form-data") && request.HasFormContentType)
         {
-            var form = await request.ReadFormAsync();
-            var file = form.Files.Count > 0 ? form.Files[0] : null;
-            if (file is null || file.Length == 0)
+            try
             {
-                logger.LogWarning("파일 업로드 실패: 파일 없음 또는 빈 파일");
+                var form = await request.ReadFormAsync();
+                var file = form.Files.Count > 0 ? form.Files[0] : null;
+                if (file is null || file.Length == 0)
+                {
+                    logger.LogWarning("파일 업로드 실패: 파일 없음 또는 빈 파일");
+                    return EmployeeErrors.NoFileUploaded.ToList().ToProblem();
+                }
+
+                fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+                logger.LogDebug("파일 업로드 수신: FileName={FileName}, Size={FileSize}, Extension={Extension}",
+                    file.FileName, file.Length, fileExtension);
+
+                using var reader = new StreamReader(file.OpenReadStream());
+                content = await reader.ReadToEndAsync();
+            }
+            catch (InvalidDataException ex)
+            {
+                logger.LogWarning("잘못된 multipart 요청: {ErrorMessage}", ex.Message);
                 return EmployeeErrors.NoFileUploaded.ToList().ToProblem();
             }
-
-            fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-            logger.LogDebug("파일 업로드 수신: FileName={FileName}, Size={FileSize}, Extension={Extension}",
-                file.FileName, file.Length, fileExtension);
-
-            using var reader = new StreamReader(file.OpenReadStream());
-            content = await reader.ReadToEndAsync();
         }
         else
         {

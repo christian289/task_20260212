@@ -7,3 +7,5 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Mvc.Testing;
 global using Microsoft.Extensions.DependencyInjection;
 global using Moq;
+global using ErrorOr;
+global using CompanyC.Api.Errors;

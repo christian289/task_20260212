@@ -52,7 +52,7 @@ public sealed class EmployeeApiMockTests : IDisposable
             new() { Name = "김테스트", Email = "test@test.com", Tel = "01012345678", Joined = new DateTime(2020, 1, 1) }
         };
         _mockGetEmployees.Setup(h => h.Handle(It.Is<GetEmployeesQuery>(q => q.Page == 2 && q.PageSize == 5)))
-            .Returns(new GetEmployeesResult(employees.AsReadOnly(), 11));
+            .Returns(ErrorOrFactory.From(new GetEmployeesResult(employees.AsReadOnly(), 11)));
 
         var response = await _client.GetAsync("/api/employee?page=2&pageSize=5");
 
@@ -64,7 +64,7 @@ public sealed class EmployeeApiMockTests : IDisposable
     public async Task GetEmployeeByName_ReturnsNotFound_WhenHandlerReturnsNull()
     {
         _mockGetByName.Setup(h => h.Handle(It.Is<GetEmployeeByNameQuery>(q => q.Name == "없는사람")))
-            .Returns((Employee?)null);
+            .Returns(EmployeeErrors.NotFound("없는사람"));
 
         var response = await _client.GetAsync("/api/employee/없는사람");
 
@@ -83,7 +83,7 @@ public sealed class EmployeeApiMockTests : IDisposable
             Joined = new DateTime(2022, 6, 15)
         };
         _mockGetByName.Setup(h => h.Handle(It.Is<GetEmployeeByNameQuery>(q => q.Name == "박모크")))
-            .Returns(employee);
+            .Returns(ErrorOrFactory.From(employee));
 
         var response = await _client.GetAsync("/api/employee/박모크");
 
@@ -102,7 +102,7 @@ public sealed class EmployeeApiMockTests : IDisposable
             new() { Name = "김파싱", Email = "parse@test.com", Tel = "01011112222", Joined = new DateTime(2020, 5, 1) }
         };
         _mockAddEmployees.Setup(h => h.Handle(It.IsAny<AddEmployeesCommand>()))
-            .Returns(parsed);
+            .Returns(ErrorOrFactory.From(parsed));
 
         var csv = "김파싱, parse@test.com 01011112222, 2020.05.01";
         var content = new StringContent(csv, Encoding.UTF8, "text/csv");
