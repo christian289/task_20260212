@@ -3,6 +3,7 @@ using CompanyC.Api.Models;
 using CompanyC.Api.Parsers;
 using CompanyC.Api.Queries;
 using CompanyC.Api.Repositories;
+using CompanyC.Api.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi(options =>
@@ -25,6 +26,7 @@ builder.Services.AddSingleton<IEmployeeParser, JsonEmployeeParser>();
 builder.Services.AddSingleton<IGetEmployeesQueryHandler, GetEmployeesQueryHandler>();
 builder.Services.AddSingleton<IGetEmployeeByNameQueryHandler, GetEmployeeByNameQueryHandler>();
 builder.Services.AddSingleton<IAddEmployeesCommandHandler, AddEmployeesCommandHandler>();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
 
 var app = builder.Build();
 
