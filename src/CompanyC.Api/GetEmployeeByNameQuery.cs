@@ -2,7 +2,7 @@ namespace CompanyC.Api;
 
 record GetEmployeeByNameQuery(string Name);
 
-interface IGetEmployeeByNameQueryHandler
+public interface IGetEmployeeByNameQueryHandler
 {
     Employee? Handle(GetEmployeeByNameQuery query);
 }

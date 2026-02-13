@@ -2,7 +2,7 @@ namespace CompanyC.Api;
 
 record AddEmployeesCommand(string Content, string? ContentType, string? FileExtension);
 
-interface IAddEmployeesCommandHandler
+public interface IAddEmployeesCommandHandler
 {
     List<Employee> Handle(AddEmployeesCommand command);
 }

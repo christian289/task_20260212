@@ -4,7 +4,7 @@ record GetEmployeesQuery(int Page, int PageSize);
 
 record GetEmployeesResult(IReadOnlyList<Employee> Items, int TotalCount);
 
-interface IGetEmployeesQueryHandler
+public interface IGetEmployeesQueryHandler
 {
     GetEmployeesResult Handle(GetEmployeesQuery query);
 }
