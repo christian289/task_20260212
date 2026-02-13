@@ -1,4 +1,4 @@
-namespace CompanyC.Api;
+namespace CompanyC.Api.Repositories;
 
 internal static class QueryLoader
 {
@@ -6,7 +6,7 @@ internal static class QueryLoader
 
     static QueryLoader()
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "EmployeeQueries.xml");
+        var path = Path.Combine(AppContext.BaseDirectory, "Repositories", "EmployeeQueries.xml");
         var doc = XDocument.Load(path);
         Queries = doc.Root!.Elements("Query")
             .ToDictionary(

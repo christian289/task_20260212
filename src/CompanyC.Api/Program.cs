@@ -1,4 +1,8 @@
-using CompanyC.Api;
+using CompanyC.Api.Commands;
+using CompanyC.Api.Models;
+using CompanyC.Api.Parsers;
+using CompanyC.Api.Queries;
+using CompanyC.Api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi(options =>

@@ -1,4 +1,4 @@
-namespace CompanyC.Api;
+namespace CompanyC.Api.Models;
 
 public sealed class Employee
 {

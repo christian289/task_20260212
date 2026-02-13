@@ -1,4 +1,8 @@
-namespace CompanyC.Api;
+using CompanyC.Api.Models;
+using CompanyC.Api.Parsers;
+using CompanyC.Api.Repositories;
+
+namespace CompanyC.Api.Commands;
 
 public record AddEmployeesCommand(string Content, string? ContentType, string? FileExtension);
 

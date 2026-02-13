@@ -1,4 +1,6 @@
-namespace CompanyC.Api;
+using CompanyC.Api.Models;
+
+namespace CompanyC.Api.Parsers;
 
 public interface IEmployeeParser
 {
