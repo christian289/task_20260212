@@ -113,31 +113,52 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both --output
 
 ```
 CompanyC.slnx                          # 솔루션 파일
-src/CompanyC.Api/
-  CompanyC.Api.csproj                  # Web API 프로젝트 (.NET 10)
-  Employee.cs                          # 직원 모델 (record)
-  IEmployeeService.cs                  # 서비스 인터페이스 (DI/Moq)
-  EmployeeService.cs                   # 비즈니스 로직 (CSV/JSON 파싱, 저장)
-  Program.cs                           # API 엔드포인트 + OpenAPI/Scalar
-tests/CompanyC.Api.IntegrationTests/
-  CompanyC.Api.IntegrationTests.csproj # 통합 테스트 프로젝트
-  EmployeeApiTests.cs                  # 10개 통합 테스트
-  EmployeeApiMockTests.cs             # 4개 Moq 단위 테스트
-  EmployeeBogusTests.cs               # 6개 Bogus 데이터 테스트
-  EmployeeFaker.cs                     # Bogus 테스트 데이터 생성기
-tools/CompanyC.DataGen/
-  CompanyC.DataGen.csproj              # 더미 데이터 생성 CLI
-  Program.cs                           # Bogus 기반 한국식 직원 데이터 생성
+src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
+  GlobalUsings.cs                      # 전역 using 선언
+  Employee.cs                          # Employee 클래스 (필수 필드 + ExtraFields)
+  IEmployeeParser.cs                   # 파서 인터페이스 (CanParse + Parse)
+  CsvEmployeeParser.cs                 # CSV 형식 파서
+  JsonEmployeeParser.cs                # JSON 형식 파서 (알 수 없는 키 → ExtraFields)
+  IEmployeeRepository.cs               # 저장소 인터페이스 (데이터 접근)
+  SqliteEmployeeRepository.cs          # SQLite 저장소 구현체
+  EmployeeQueries.xml                  # SQL 쿼리 (Content, 출력 디렉토리에 복사)
+  QueryLoader.cs                       # XML 쿼리 로더
+  GetEmployeesQuery.cs                 # 쿼리: 페이지네이션 직원 목록 (요청 + 핸들러)
+  GetEmployeeByNameQuery.cs            # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
+  AddEmployeesCommand.cs               # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
+  Program.cs                           # 엔드포인트 + DI + OpenAPI/Scalar
+tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
+  GlobalUsings.cs                      # 전역 using 선언
+  TestWebApplicationFactory.cs         # 격리된 테스트 팩토리 (임시 SQLite DB)
+  EmployeeApiTests.cs                  # 통합 테스트 10개
+  EmployeeApiMockTests.cs              # Moq 기반 단위 테스트 4개 (Handler 모킹)
+  EmployeeBogusTests.cs                # Bogus 데이터 기반 테스트 6개
+  EmployeeFaker.cs                     # Bogus 테스트 데이터 생성기 (CustomInstantiator)
+tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
+  GlobalUsings.cs                      # 전역 using 선언
+  Program.cs                           # Bogus 기반 한국어 직원 데이터 생성
 ```
 
 ## 설계 결정사항
 
 - **Minimal API**: 컨트롤러 없이 `Program.cs`에서 직접 엔드포인트 정의 (최소 파일 구성)
-- **OpenAPI + Scalar**: API 문서 자동 생성 및 Scalar UI 제공 (`/scalar/v1`)
-- **In-Memory 저장소**: `EmployeeService`를 Singleton으로 등록하여 메모리에 데이터 저장
-- **Thread-Safety**: `System.Threading.Lock`으로 동시 접근 보호
+- **CQRS 패턴**: Query/Command 분리 — 요청 메시지 record + 핸들러 인터페이스/클래스 per 오퍼레이션
+  - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler`
+  - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler`
+  - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
+- **SQLite 영속성**: Repository 패턴 (`IEmployeeRepository` → `SqliteEmployeeRepository`)
+  - WAL 모드로 동시성 처리
+  - ExtraFields를 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
+  - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
+- **외부 SQL 파일**: `EmployeeQueries.xml`에서 쿼리 로드, DBA가 재컴파일 없이 수정 가능
+- **전략 패턴 파서**: `IEmployeeParser` 인터페이스로 CSV/JSON 파서 교체 가능
+  - `CsvEmployeeParser`: CSV/text/plain 파싱 (헤더 감지 시 ExtraFields 지원)
+  - `JsonEmployeeParser`: JSON 파싱 (알 수 없는 키 → ExtraFields)
+  - 새 형식 추가: `IEmployeeParser` 구현 + DI 등록
 - **CSV 파싱**: 과제 문서의 CSV 형식에 맞춰 email과 tel이 공백으로 구분된 경우도 처리
 - **Content-Type 추론**: 명시적 Content-Type이 없는 경우 `[` 또는 `{`로 시작하면 JSON, 그 외 CSV로 자동 판별
+- **OpenAPI + Scalar**: API 문서 자동 생성 및 Scalar UI 제공 (`/scalar/v1`)
 - **DTO는 record**: 불변성과 값 기반 동등성을 위해 모든 DTO를 `record`로 구현
 - **JsonSerializerOptions 사전 정의**: 리플렉션 캐시 재사용을 위해 `static readonly`로 선언
-- **IEmployeeService 인터페이스**: DI 기반 테스트(Moq) 지원을 위한 인터페이스 추출
+- **CQRS Handler 인터페이스**: DI 기반 테스트(Moq) 지원을 위한 인터페이스 추출
+- **전역 using 관리**: 외부 네임스페이스는 `GlobalUsings.cs`에 집중 관리
