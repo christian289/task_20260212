@@ -209,6 +209,52 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Post_MultipartWithNoFile_ReturnsBadRequest()
+    {
+        var client = CreateIsolatedClient();
+        using var formContent = new MultipartFormDataContent();
+
+        var response = await client.PostAsync("/api/employee", formContent);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostJson_InvalidJson_ReturnsError()
+    {
+        var content = new StringContent("{ invalid json }", Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/api/employee", content);
+
+        Assert.True(
+            response.StatusCode == HttpStatusCode.BadRequest ||
+            response.StatusCode == HttpStatusCode.InternalServerError);
+    }
+
+    [Fact]
+    public async Task PostJson_InvalidEmail_ReturnsBadRequest()
+    {
+        var client = CreateIsolatedClient();
+        var json = """[{"name":"테스트","email":"not-an-email","tel":"01012345678","joined":"2024-01-01"}]""";
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync("/api/employee", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostJson_InvalidTel_ReturnsBadRequest()
+    {
+        var client = CreateIsolatedClient();
+        var json = """[{"name":"테스트","email":"test@test.com","tel":"12345","joined":"2024-01-01"}]""";
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync("/api/employee", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     // === Helpers ===
 
     private HttpClient CreateIsolatedClient()

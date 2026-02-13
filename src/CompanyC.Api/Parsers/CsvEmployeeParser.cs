@@ -1,8 +1,9 @@
+using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
 
 namespace CompanyC.Api.Parsers;
 
-public sealed class CsvEmployeeParser : IEmployeeParser
+public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmployeeParser
 {
     private static readonly HashSet<string> KnownHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -18,23 +19,36 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             && (contentType.Contains("csv") || contentType.Contains("text/plain"));
     }
 
-    public List<Employee> Parse(string content)
+    public ErrorOr<List<Employee>> Parse(string content)
     {
-        var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(l => l.Trim())
-            .Where(l => !string.IsNullOrWhiteSpace(l))
-            .ToList();
+        try
+        {
+            logger.LogDebug("CSV 파싱 시작: ContentLength={ContentLength}", content.Length);
 
-        if (lines.Count == 0)
-            return [];
+            var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .ToList();
 
-        // 헤더 행 감지: 첫 줄에 알려진 필드명이 포함되어 있는지 확인
-        var firstLineParts = lines[0].Split(',').Select(p => p.Trim()).ToArray();
-        var hasHeader = firstLineParts.Any(p => KnownHeaders.Contains(p));
+            if (lines.Count == 0)
+                return new List<Employee>();
 
-        return hasHeader
-            ? ParseWithHeaders(lines, firstLineParts)
-            : ParseHeuristic(lines);
+            // 헤더 행 감지: 첫 줄에 알려진 필드명이 포함되어 있는지 확인
+            var firstLineParts = lines[0].Split(',').Select(p => p.Trim()).ToArray();
+            var hasHeader = firstLineParts.Any(p => KnownHeaders.Contains(p));
+
+            var result = hasHeader
+                ? ParseWithHeaders(lines, firstLineParts)
+                : ParseHeuristic(lines);
+
+            logger.LogDebug("CSV 파싱 완료: {Count}건", result.Count);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "CSV 파싱 중 오류 발생");
+            return EmployeeErrors.ParseFailed("CSV", ex.Message);
+        }
     }
 
     private static List<Employee> ParseWithHeaders(List<string> lines, string[] headers)
