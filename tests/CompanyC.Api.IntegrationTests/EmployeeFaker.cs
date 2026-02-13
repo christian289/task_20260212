@@ -1,3 +1,5 @@
+using CompanyC.Api.Models;
+
 namespace CompanyC.Api.IntegrationTests;
 
 public static class EmployeeFaker

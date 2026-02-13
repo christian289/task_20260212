@@ -7,8 +7,3 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Mvc.Testing;
 global using Microsoft.Extensions.DependencyInjection;
 global using Moq;
-global using CompanyC.Api.Models;
-global using CompanyC.Api.Parsers;
-global using CompanyC.Api.Repositories;
-global using CompanyC.Api.Queries;
-global using CompanyC.Api.Commands;
