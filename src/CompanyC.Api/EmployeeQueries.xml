@@ -6,7 +6,7 @@
         Id INTEGER PRIMARY KEY AUTOINCREMENT,
         Name TEXT NOT NULL,
         Email TEXT NOT NULL,
-        Phone TEXT NOT NULL,
+        Tel TEXT NOT NULL,
         Joined TEXT NOT NULL
     )
   </Query>

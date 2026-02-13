@@ -40,7 +40,7 @@ private sealed class EmployeeDto
 {
     public string Name { get; set; } = "";
     public string Email { get; set; } = "";
-    public string Phone { get; set; } = "";
+    public string Tel { get; set; } = "";
     public DateTime Joined { get; set; }
 }
 
@@ -72,7 +72,7 @@ private sealed record CreatedResponse(
 private sealed record EmployeeDto(
     string Name,
     string Email,
-    string Phone,
+    string Tel,
     DateTime Joined);
 
 // JSON 역직렬화용 DTO도 record로 구현

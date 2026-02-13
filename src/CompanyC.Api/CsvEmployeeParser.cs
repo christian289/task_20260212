@@ -4,7 +4,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
 {
     private static readonly HashSet<string> KnownHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "name", "email", "tel", "phone", "joined"
+        "name", "email", "tel", "joined"
     };
 
     public bool CanParse(string? contentType, string? fileExtension)
@@ -47,7 +47,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
 
             string? name = null;
             string? email = null;
-            string? phone = null;
+            string? tel = null;
             DateTime joined = default;
             var extraFields = new Dictionary<string, string>();
 
@@ -67,8 +67,8 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                     case "email":
                         email = value;
                         break;
-                    case "tel" or "phone":
-                        phone = value;
+                    case "tel":
+                        tel = value;
                         break;
                     case "joined":
                         _ = TryParseDate(value, out joined);
@@ -79,14 +79,14 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                 }
             }
 
-            if (name is null || email is null || phone is null)
+            if (name is null || email is null || tel is null)
                 continue;
 
             result.Add(new Employee
             {
                 Name = name,
                 Email = email,
-                Phone = phone,
+                Tel = tel,
                 Joined = joined,
                 ExtraFields = extraFields
             });
@@ -111,7 +111,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
 
             var name = parts[0];
             string? email = null;
-            string? phone = null;
+            string? tel = null;
             DateTime joined = default;
 
             var tokens = parts.Skip(1)
@@ -126,14 +126,14 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                     email = token;
                 else if (TryParseDate(token, out var date))
                     joined = date;
-                else if (IsPhoneNumber(token))
-                    phone = token;
+                else if (IsTelNumber(token))
+                    tel = token;
             }
 
-            if (email is null || phone is null)
+            if (email is null || tel is null)
                 continue;
 
-            result.Add(new Employee { Name = name, Email = email, Phone = phone, Joined = joined });
+            result.Add(new Employee { Name = name, Email = email, Tel = tel, Joined = joined });
         }
 
         return result;
@@ -152,7 +152,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
             CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 
-    private static bool IsPhoneNumber(string value)
+    private static bool IsTelNumber(string value)
     {
         return value.Replace("-", "").All(c => char.IsDigit(c) || c == '+');
     }

@@ -46,7 +46,7 @@ curl http://localhost:5000/api/employee?page=1&pageSize=10
   "totalCount": 3,
   "totalPages": 1,
   "data": [
-    { "name": "김철수", "email": "charles@clovf.com", "phone": "01075312468", "joined": "2018-03-07T00:00:00" }
+    { "name": "김철수", "email": "charles@clovf.com", "tel": "01075312468", "joined": "2018-03-07T00:00:00" }
   ]
 }
 ```
@@ -136,7 +136,7 @@ tools/CompanyC.DataGen/
 - **OpenAPI + Scalar**: API 문서 자동 생성 및 Scalar UI 제공 (`/scalar/v1`)
 - **In-Memory 저장소**: `EmployeeService`를 Singleton으로 등록하여 메모리에 데이터 저장
 - **Thread-Safety**: `System.Threading.Lock`으로 동시 접근 보호
-- **CSV 파싱**: 과제 문서의 CSV 형식에 맞춰 email과 phone이 공백으로 구분된 경우도 처리
+- **CSV 파싱**: 과제 문서의 CSV 형식에 맞춰 email과 tel이 공백으로 구분된 경우도 처리
 - **Content-Type 추론**: 명시적 Content-Type이 없는 경우 `[` 또는 `{`로 시작하면 JSON, 그 외 CSV로 자동 판별
 - **DTO는 record**: 불변성과 값 기반 동등성을 위해 모든 DTO를 `record`로 구현
 - **JsonSerializerOptions 사전 정의**: 리플렉션 캐시 재사용을 위해 `static readonly`로 선언
