@@ -21,15 +21,20 @@ CompanyC.slnx                          # Solution file
 src/CompanyC.Api/                      # API project (Minimal API)
   GlobalUsings.cs                      # Global using declarations
   Employee.cs                          # Employee record model
+  IEmployeeRepository.cs               # Repository interface (data access)
+  SqliteEmployeeRepository.cs          # SQLite repository implementation
+  EmployeeQueries.xml                  # SQL queries (embedded resource)
+  QueryLoader.cs                       # XML query loader
   IEmployeeService.cs                  # Service interface (for DI/Moq)
   EmployeeService.cs                   # Business logic + CSV/JSON parsing
   Program.cs                           # Endpoints + DI + OpenAPI/Scalar
 tests/CompanyC.Api.IntegrationTests/   # Integration tests (xUnit)
   GlobalUsings.cs                      # Global using declarations
+  TestWebApplicationFactory.cs           # Isolated test factory (temp SQLite DB)
   EmployeeApiTests.cs                  # 10 integration tests
   EmployeeApiMockTests.cs             # 4 Moq-based unit tests
   EmployeeBogusTests.cs               # 6 Bogus data-driven tests
-  EmployeeFaker.cs                     # Bogus test data generator
+  EmployeeFaker.cs                     # Bogus test data generator (CustomInstantiator)
 tools/CompanyC.DataGen/                # CLI dummy data generator
   GlobalUsings.cs                      # Global using declarations
   Program.cs                           # Bogus-based Korean employee data gen
@@ -52,11 +57,14 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 
 ## Conventions
 - Minimal API (no controllers) - keep file count minimal
-- Singleton in-memory storage with thread-safe `Lock`
+- SQLite data persistence via Repository pattern (`IEmployeeRepository` → `SqliteEmployeeRepository`)
+- SQL queries stored in `EmployeeQueries.xml` (embedded resource), loaded via `QueryLoader`
+- Connection string from `Configuration.GetConnectionString("Default")`, default: `Data Source=employees.db`
 - CSV format: email and phone may be space-separated (e.g. `charles@clovf.com 01075312468`)
 - Korean names supported (UTF-8)
-- Integration tests use isolated `WebApplicationFactory` instances per test
+- Integration tests use `TestWebApplicationFactory` with isolated temp SQLite DB per test
 - `IEmployeeService` interface for DI testability (Moq support)
+- Bogus `Faker<Employee>` uses `CustomInstantiator` (positional record has no parameterless constructor)
 
 ## Coding Standards (Skills)
 - DTOs must be `record` (not `class`) - see `.claude/skills/enforcing-dto-record/`
