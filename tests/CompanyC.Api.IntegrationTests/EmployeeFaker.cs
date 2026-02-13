@@ -6,10 +6,13 @@ public static class EmployeeFaker
     private static readonly string[] GivenChars = ["민", "서", "지", "수", "현", "준", "우", "하", "은", "도", "영", "재", "호", "진", "성", "경", "태", "혁"];
 
     private static readonly Faker<Employee> Faker = new Faker<Employee>()
-        .RuleFor(e => e.Name, f => f.PickRandom(Surnames) + f.PickRandom(GivenChars) + f.PickRandom(GivenChars))
-        .RuleFor(e => e.Email, f => f.Internet.Email())
-        .RuleFor(e => e.Phone, f => "010" + f.Random.Number(10000000, 99999999).ToString())
-        .RuleFor(e => e.JoinedDate, f => f.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31)));
+        .CustomInstantiator(f => new Employee
+        {
+            Name = f.PickRandom(Surnames) + f.PickRandom(GivenChars) + f.PickRandom(GivenChars),
+            Email = f.Internet.Email(),
+            Phone = "010" + f.Random.Number(10000000, 99999999).ToString(),
+            Joined = f.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31))
+        });
 
     private static readonly JsonSerializerOptions JsonWriteOptions = new()
     {
@@ -25,7 +28,7 @@ public static class EmployeeFaker
         var sb = new StringBuilder();
         foreach (var e in employees)
         {
-            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.JoinedDate:yyyy.MM.dd}");
+            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.Joined:yyyy.MM.dd}");
         }
         return sb.ToString();
     }
@@ -38,7 +41,7 @@ public static class EmployeeFaker
             name = e.Name,
             email = e.Email,
             tel = e.Phone,
-            joined = e.JoinedDate.ToString("yyyy-MM-dd")
+            joined = e.Joined.ToString("yyyy-MM-dd")
         }).ToList();
         return JsonSerializer.Serialize(data, JsonWriteOptions);
     }

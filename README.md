@@ -46,7 +46,7 @@ curl http://localhost:5000/api/employee?page=1&pageSize=10
   "totalCount": 3,
   "totalPages": 1,
   "data": [
-    { "name": "김철수", "email": "charles@clovf.com", "phone": "01075312468", "joinedDate": "2018-03-07T00:00:00" }
+    { "name": "김철수", "email": "charles@clovf.com", "phone": "01075312468", "joined": "2018-03-07T00:00:00" }
   ]
 }
 ```

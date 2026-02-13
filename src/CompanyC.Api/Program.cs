@@ -14,8 +14,13 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
-builder.Services.AddSingleton<EmployeeService>();
-builder.Services.AddSingleton<IEmployeeService>(sp => sp.GetRequiredService<EmployeeService>());
+var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=employees.db";
+builder.Services.AddSingleton<IEmployeeRepository>(_ => new SqliteEmployeeRepository(connectionString));
+builder.Services.AddSingleton<IEmployeeParser, CsvEmployeeParser>();
+builder.Services.AddSingleton<IEmployeeParser, JsonEmployeeParser>();
+builder.Services.AddSingleton<IGetEmployeesQueryHandler, GetEmployeesQueryHandler>();
+builder.Services.AddSingleton<IGetEmployeeByNameQueryHandler, GetEmployeeByNameQueryHandler>();
+builder.Services.AddSingleton<IAddEmployeesCommandHandler, AddEmployeesCommandHandler>();
 
 var app = builder.Build();
 
@@ -27,18 +32,18 @@ app.MapScalarApiReference(options =>
 });
 
 // GET /api/employee?page={page}&pageSize={pageSize}
-app.MapGet("/api/employee", (IEmployeeService svc, int page = 1, int pageSize = 10) =>
+app.MapGet("/api/employee", (IGetEmployeesQueryHandler handler, int page = 1, int pageSize = 10) =>
 {
     if (page < 1) page = 1;
     if (pageSize < 1) pageSize = 10;
 
-    var (items, totalCount) = svc.GetAll(page, pageSize);
+    var result = handler.Handle(new GetEmployeesQuery(page, pageSize));
     return Results.Ok(new PagedResponse(
         page,
         pageSize,
-        totalCount,
-        (int)Math.Ceiling((double)totalCount / pageSize),
-        items.ToArray()));
+        result.TotalCount,
+        (int)Math.Ceiling((double)result.TotalCount / pageSize),
+        result.Items.ToArray()));
 })
 .WithName("GetEmployees")
 .WithTags("Employee")
@@ -47,9 +52,9 @@ app.MapGet("/api/employee", (IEmployeeService svc, int page = 1, int pageSize = 
 .Produces<PagedResponse>();
 
 // GET /api/employee/{name}
-app.MapGet("/api/employee/{name}", (IEmployeeService svc, string name) =>
+app.MapGet("/api/employee/{name}", (IGetEmployeeByNameQueryHandler handler, string name) =>
 {
-    var employee = svc.GetByName(name);
+    var employee = handler.Handle(new GetEmployeeByNameQuery(name));
     return employee is not null
         ? Results.Ok(employee)
         : Results.NotFound(new ErrorResponse($"Employee '{name}' not found."));
@@ -62,10 +67,11 @@ app.MapGet("/api/employee/{name}", (IEmployeeService svc, string name) =>
 .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
 // POST /api/employee
-app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =>
+app.MapPost("/api/employee", async (HttpRequest request, IAddEmployeesCommandHandler handler) =>
 {
     var contentType = request.ContentType?.ToLowerInvariant() ?? "";
-    List<Employee> added;
+    string content;
+    string? fileExtension = null;
 
     // 파일 업로드
     if (contentType.Contains("multipart/form-data") && request.HasFormContentType)
@@ -76,36 +82,23 @@ app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =
             return Results.BadRequest(new ErrorResponse("No file uploaded."));
 
         using var reader = new StreamReader(file.OpenReadStream());
-        var content = await reader.ReadToEndAsync();
-        var ext = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-
-        added = ext switch
-        {
-            ".json" => EmployeeService.ParseJson(content),
-            ".csv" => EmployeeService.ParseCsv(content),
-            _ => InferAndParse(content)
-        };
+        content = await reader.ReadToEndAsync();
+        fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
     }
     // body 직접 입력
     else
     {
         using var reader = new StreamReader(request.Body);
-        var body = await reader.ReadToEndAsync();
-        if (string.IsNullOrWhiteSpace(body))
+        content = await reader.ReadToEndAsync();
+        if (string.IsNullOrWhiteSpace(content))
             return Results.BadRequest(new ErrorResponse("Request body is empty."));
-
-        if (contentType.Contains("json"))
-            added = EmployeeService.ParseJson(body);
-        else if (contentType.Contains("csv") || contentType.Contains("text/plain"))
-            added = EmployeeService.ParseCsv(body);
-        else
-            added = InferAndParse(body);
     }
+
+    var added = handler.Handle(new AddEmployeesCommand(content, contentType, fileExtension));
 
     if (added.Count == 0)
         return Results.BadRequest(new ErrorResponse("No valid employee data found."));
 
-    svc.AddFromParsed(added);
     return Results.Created("/api/employee", new CreatedResponse(added.Count, added.ToArray()));
 })
 .WithName("AddEmployees")
@@ -117,14 +110,6 @@ app.MapPost("/api/employee", async (HttpRequest request, IEmployeeService svc) =
 .DisableAntiforgery();
 
 app.Run();
-
-static List<Employee> InferAndParse(string content)
-{
-    var trimmed = content.TrimStart();
-    return trimmed.StartsWith('[') || trimmed.StartsWith('{')
-        ? EmployeeService.ParseJson(trimmed)
-        : EmployeeService.ParseCsv(content);
-}
 
 // Response DTOs
 record PagedResponse(int Page, int PageSize, int TotalCount, int TotalPages, Employee[] Data);
