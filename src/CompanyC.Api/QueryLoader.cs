@@ -6,11 +6,8 @@ internal static class QueryLoader
 
     static QueryLoader()
     {
-        var assembly = typeof(QueryLoader).Assembly;
-        using var stream = assembly.GetManifestResourceStream("CompanyC.Api.EmployeeQueries.xml")
-            ?? throw new InvalidOperationException("Embedded resource 'EmployeeQueries.xml' not found.");
-
-        var doc = XDocument.Load(stream);
+        var path = Path.Combine(AppContext.BaseDirectory, "EmployeeQueries.xml");
+        var doc = XDocument.Load(path);
         Queries = doc.Root!.Elements("Query")
             .ToDictionary(
                 e => e.Attribute("Name")!.Value,
