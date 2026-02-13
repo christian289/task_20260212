@@ -67,9 +67,9 @@ for (int i = 0; i < count; i++)
 
     var email = faker.Internet.Email(romanizedName);
     var phone = "010" + faker.Random.Number(10000000, 99999999).ToString();
-    var joinedDate = faker.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31));
+    var joined = faker.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31));
 
-    employees.Add(new Employee(name, email, phone, joinedDate));
+    employees.Add(new Employee(name, email, phone, joined));
 }
 
 // Ensure output directory exists

@@ -4,7 +4,7 @@ public sealed class CsvEmployeeParser : IEmployeeParser
 {
     private static readonly HashSet<string> KnownHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "name", "email", "tel", "phone", "joined", "joineddate"
+        "name", "email", "tel", "phone", "joined"
     };
 
     public bool CanParse(string? contentType, string? fileExtension)
@@ -70,8 +70,8 @@ public sealed class CsvEmployeeParser : IEmployeeParser
                     case "tel" or "phone":
                         phone = value;
                         break;
-                    case "joined" or "joineddate":
-                        TryParseDate(value, out joined);
+                    case "joined":
+                        _ = TryParseDate(value, out joined);
                         break;
                     default:
                         extraFields[headers[j]] = value;
