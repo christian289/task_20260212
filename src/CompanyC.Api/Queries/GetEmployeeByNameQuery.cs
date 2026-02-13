@@ -1,4 +1,7 @@
-namespace CompanyC.Api;
+using CompanyC.Api.Models;
+using CompanyC.Api.Repositories;
+
+namespace CompanyC.Api.Queries;
 
 public record GetEmployeeByNameQuery(string Name);
 

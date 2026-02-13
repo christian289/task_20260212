@@ -115,18 +115,23 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both --output
 CompanyC.slnx                          # 솔루션 파일
 src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
   GlobalUsings.cs                      # 전역 using 선언
-  Employee.cs                          # Employee 클래스 (필수 필드 + ExtraFields)
-  IEmployeeParser.cs                   # 파서 인터페이스 (CanParse + Parse)
-  CsvEmployeeParser.cs                 # CSV 형식 파서
-  JsonEmployeeParser.cs                # JSON 형식 파서 (알 수 없는 키 → ExtraFields)
-  IEmployeeRepository.cs               # 저장소 인터페이스 (데이터 접근)
-  SqliteEmployeeRepository.cs          # SQLite 저장소 구현체
-  EmployeeQueries.xml                  # SQL 쿼리 (Content, 출력 디렉토리에 복사)
-  QueryLoader.cs                       # XML 쿼리 로더
-  GetEmployeesQuery.cs                 # 쿼리: 페이지네이션 직원 목록 (요청 + 핸들러)
-  GetEmployeeByNameQuery.cs            # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
-  AddEmployeesCommand.cs               # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
   Program.cs                           # 엔드포인트 + DI + OpenAPI/Scalar
+  Models/
+    Employee.cs                        # Employee 클래스 (필수 필드 + ExtraFields)
+  Parsers/
+    IEmployeeParser.cs                 # 파서 인터페이스 (CanParse + Parse)
+    CsvEmployeeParser.cs               # CSV 형식 파서
+    JsonEmployeeParser.cs              # JSON 형식 파서 (알 수 없는 키 → ExtraFields)
+  Repositories/
+    IEmployeeRepository.cs             # 저장소 인터페이스 (데이터 접근)
+    SqliteEmployeeRepository.cs        # SQLite 저장소 구현체
+    EmployeeQueries.xml                # SQL 쿼리 (Content, 출력 디렉토리에 복사)
+    QueryLoader.cs                     # XML 쿼리 로더
+  Queries/
+    GetEmployeesQuery.cs               # 쿼리: 페이지네이션 직원 목록 (요청 + 핸들러)
+    GetEmployeeByNameQuery.cs          # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
+  Commands/
+    AddEmployeesCommand.cs             # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
 tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
   GlobalUsings.cs                      # 전역 using 선언
   TestWebApplicationFactory.cs         # 격리된 테스트 팩토리 (임시 SQLite DB)
@@ -216,4 +221,4 @@ CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `Ext
 정규식 패턴: ^[a-zA-Z_][a-zA-Z_\d]*$
 ```
 
-검증 규칙을 변경하려면 `SqliteEmployeeRepository.cs`의 `SafeColumnNamePattern()`과 `IsValidColumnName()` 메서드를 수정하세요.
+검증 규칙을 변경하려면 `Repositories/SqliteEmployeeRepository.cs`의 `SafeColumnNamePattern()`과 `IsValidColumnName()` 메서드를 수정하세요.

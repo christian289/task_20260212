@@ -20,18 +20,23 @@ Company C 입사과제 - 직원 긴급 연락망 API (ASP.NET Core Minimal API, 
 CompanyC.slnx                          # 솔루션 파일
 src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
   GlobalUsings.cs                      # 전역 using 선언
-  Employee.cs                          # Employee 클래스 (필수 필드 + ExtraFields)
-  IEmployeeParser.cs                   # 파서 인터페이스 (CanParse + Parse)
-  CsvEmployeeParser.cs                 # CSV 형식 파서
-  JsonEmployeeParser.cs                # JSON 형식 파서 (알 수 없는 키 → ExtraFields)
-  IEmployeeRepository.cs               # 저장소 인터페이스 (데이터 접근)
-  SqliteEmployeeRepository.cs          # SQLite 저장소 구현체
-  EmployeeQueries.xml                  # SQL 쿼리 (Content, 출력 디렉토리에 복사)
-  QueryLoader.cs                       # XML 쿼리 로더
-  GetEmployeesQuery.cs                 # 쿼리: 페이지네이션 직원 목록 (요청 + 핸들러)
-  GetEmployeeByNameQuery.cs            # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
-  AddEmployeesCommand.cs               # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
   Program.cs                           # 엔드포인트 + DI + OpenAPI/Scalar
+  Models/
+    Employee.cs                        # Employee 클래스 (필수 필드 + ExtraFields)
+  Parsers/
+    IEmployeeParser.cs                 # 파서 인터페이스 (CanParse + Parse)
+    CsvEmployeeParser.cs               # CSV 형식 파서
+    JsonEmployeeParser.cs              # JSON 형식 파서 (알 수 없는 키 → ExtraFields)
+  Repositories/
+    IEmployeeRepository.cs             # 저장소 인터페이스 (데이터 접근)
+    SqliteEmployeeRepository.cs        # SQLite 저장소 구현체
+    EmployeeQueries.xml                # SQL 쿼리 (Content, 출력 디렉토리에 복사)
+    QueryLoader.cs                     # XML 쿼리 로더
+  Queries/
+    GetEmployeesQuery.cs               # 쿼리: 페이지네이션 직원 목록 (요청 + 핸들러)
+    GetEmployeeByNameQuery.cs          # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
+  Commands/
+    AddEmployeesCommand.cs             # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
 tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
   GlobalUsings.cs                      # 전역 using 선언
   TestWebApplicationFactory.cs         # 격리된 테스트 팩토리 (임시 SQLite DB)
