@@ -142,7 +142,7 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
         Assert.Equal(2, body.Count);
     }
 
-    // === POST /api/employee - 과제 문서의 실제 CSV 형식 (email과 phone이 공백 구분) ===
+    // === POST /api/employee - 과제 문서의 실제 CSV 형식 (email과 tel이 공백 구분) ===
 
     [Fact]
     public async Task PostCsv_Body_WithSpaceSeparatedFields_ReturnsCreated()
@@ -157,7 +157,7 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
         var body = await Deserialize<CreatedResponse>(response);
         Assert.Equal(3, body.Count);
         Assert.Equal("charles@clovf.com", body.Data[0].Email);
-        Assert.Equal("01075312468", body.Data[0].Phone);
+        Assert.Equal("01075312468", body.Data[0].Tel);
     }
 
     // === POST /api/employee - 빈 요청 ===
@@ -196,5 +196,5 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
 
     private sealed record CreatedResponse(int Count, EmployeeDto[] Data);
 
-    private sealed record EmployeeDto(string Name, string Email, string Phone, DateTime Joined);
+    private sealed record EmployeeDto(string Name, string Email, string Tel, DateTime Joined);
 }

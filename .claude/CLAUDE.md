@@ -64,14 +64,14 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
   - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler`
   - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler`
   - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
-- **Employee**: 필수 필드(Name, Email, Phone, Joined) + `Dictionary<string, string> ExtraFields`를 가진 `sealed class`
+- **Employee**: 필수 필드(Name, Email, Tel, Joined) + `Dictionary<string, string> ExtraFields`를 가진 `sealed class`
 - **파서**: `IEmployeeParser` 인터페이스, `CanParse(contentType, extension)` 전략 패턴
   - `CsvEmployeeParser`: CSV/text/plain 파싱 (헤더 감지 시 ExtraFields 지원, 미감지 시 heuristic)
   - `JsonEmployeeParser`: JSON 파싱 (알 수 없는 키 → ExtraFields)
   - 새 형식 추가: `IEmployeeParser` 구현 + DI 등록
 - **저장소**: `IEmployeeRepository` → `SqliteEmployeeRepository` (SQLite, WAL 모드, 동적 컬럼)
   - ExtraFields는 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
-  - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Phone, Joined) 외 컬럼은 ExtraFields에 로딩
+  - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
 
 ## 규칙
 - Minimal API (컨트롤러 없음)

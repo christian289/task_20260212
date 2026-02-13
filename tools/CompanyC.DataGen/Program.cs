@@ -66,10 +66,10 @@ for (int i = 0; i < count; i++)
     var romanizedName = romanizedGivenName + romanizedSurname;
 
     var email = faker.Internet.Email(romanizedName);
-    var phone = "010" + faker.Random.Number(10000000, 99999999).ToString();
+    var tel = "010" + faker.Random.Number(10000000, 99999999).ToString();
     var joined = faker.Date.Between(new DateTime(2010, 1, 1), new DateTime(2024, 12, 31));
 
-    employees.Add(new Employee(name, email, phone, joined));
+    employees.Add(new Employee(name, email, tel, joined));
 }
 
 // Ensure output directory exists

@@ -5,7 +5,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
     private readonly string _connectionString;
     private static readonly HashSet<string> BaseColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "Name", "Email", "Phone", "Joined"
+        "Id", "Name", "Email", "Tel", "Joined"
     };
 
     public SqliteEmployeeRepository(string connectionString)
@@ -83,7 +83,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
             EnsureColumns(connection, extraKeys);
 
         // 동적 INSERT 구성
-        var allColumns = new List<string> { "Name", "Email", "Phone", "Joined" };
+        var allColumns = new List<string> { "Name", "Email", "Tel", "Joined" };
         allColumns.AddRange(extraKeys);
 
         var paramNames = allColumns.Select((_, i) => $"@p{i}").ToList();
@@ -103,7 +103,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
         {
             parameters[0].Value = employee.Name;
             parameters[1].Value = employee.Email;
-            parameters[2].Value = employee.Phone;
+            parameters[2].Value = employee.Tel;
             parameters[3].Value = employee.Joined.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
             for (var i = 4; i < allColumns.Count; i++)
@@ -168,7 +168,7 @@ public sealed class SqliteEmployeeRepository : IEmployeeRepository
         {
             Name = reader.GetString(reader.GetOrdinal("Name")),
             Email = reader.GetString(reader.GetOrdinal("Email")),
-            Phone = reader.GetString(reader.GetOrdinal("Phone")),
+            Tel = reader.GetString(reader.GetOrdinal("Tel")),
             Joined = DateTime.ParseExact(
                 reader.GetString(reader.GetOrdinal("Joined")),
                 "yyyy-MM-dd",

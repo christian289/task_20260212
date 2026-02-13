@@ -24,7 +24,7 @@ public sealed record Employee
 {
     public required string Name { get; init; }
     public required string Email { get; init; }
-    public required string Phone { get; init; }
+    public required string Tel { get; init; }
     public DateTime Joined { get; init; }
 }
 
@@ -33,7 +33,7 @@ var employee = new Employee
 {
     Name = "김철수",
     Email = "charles@clovf.com",
-    Phone = "01075312468",
+    Tel = "01075312468",
     Joined = new DateTime(2018, 3, 7)
 };
 
@@ -42,7 +42,7 @@ result.Add(new Employee
 {
     Name = name,
     Email = email,
-    Phone = phone,
+    Tel = tel,
     Joined = joined
 });
 ```
@@ -54,21 +54,21 @@ result.Add(new Employee
 public sealed record Employee(
     string Name,
     string Email,
-    string Phone,
+    string Tel,
     DateTime Joined);
 
 // 생성자 + Named Arguments - 간결하고 불변성이 명확
 var employee = new Employee(
     Name: "김철수",
     Email: "charles@clovf.com",
-    Phone: "01075312468",
+    Tel: "01075312468",
     Joined: new DateTime(2018, 3, 7));
 
 // 파싱 시에도 생성자 초기화
-result.Add(new Employee(name, email, phone, joined));
+result.Add(new Employee(name, email, tel, joined));
 
 // 짧은 경우 한 줄로 표현 가능
-var emp = new Employee(Name: "박영희", Email: "matilda@clovf.com", Phone: "01087654321", Joined: default);
+var emp = new Employee(Name: "박영희", Email: "matilda@clovf.com", Tel: "01087654321", Joined: default);
 ```
 
 ## 비교

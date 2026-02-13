@@ -63,7 +63,7 @@ public sealed class EmployeeBogusTests : IDisposable
         // Register via CSV format
         var sb = new StringBuilder();
         foreach (var e in employees)
-            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.Joined:yyyy.MM.dd}");
+            sb.AppendLine($"{e.Name}, {e.Email} {e.Tel}, {e.Joined:yyyy.MM.dd}");
         var content = new StringContent(sb.ToString(), Encoding.UTF8, "text/csv");
         await client.PostAsync("/api/employee", content);
 
@@ -111,7 +111,7 @@ public sealed class EmployeeBogusTests : IDisposable
         // Build CSV and post
         var sb = new StringBuilder();
         foreach (var e in employees)
-            sb.AppendLine($"{e.Name}, {e.Email} {e.Phone}, {e.Joined:yyyy.MM.dd}");
+            sb.AppendLine($"{e.Name}, {e.Email} {e.Tel}, {e.Joined:yyyy.MM.dd}");
         var content = new StringContent(sb.ToString(), Encoding.UTF8, "text/csv");
         await client.PostAsync("/api/employee", content);
 
@@ -123,7 +123,7 @@ public sealed class EmployeeBogusTests : IDisposable
             var body = JsonSerializer.Deserialize<JsonElement>(
                 await response.Content.ReadAsStringAsync(), _json);
             Assert.Equal(expected.Email, body.GetProperty("email").GetString());
-            Assert.Equal(expected.Phone, body.GetProperty("phone").GetString());
+            Assert.Equal(expected.Tel, body.GetProperty("tel").GetString());
         }
     }
 
@@ -138,7 +138,7 @@ public sealed class EmployeeBogusTests : IDisposable
         {
             name = e.Name,
             email = e.Email,
-            tel = e.Phone,
+            tel = e.Tel,
             joined = e.Joined.ToString("yyyy-MM-dd")
         }).ToList();
         var jsonStr = JsonSerializer.Serialize(jsonArray);
@@ -153,7 +153,7 @@ public sealed class EmployeeBogusTests : IDisposable
             var body = JsonSerializer.Deserialize<JsonElement>(
                 await response.Content.ReadAsStringAsync(), _json);
             Assert.Equal(expected.Email, body.GetProperty("email").GetString());
-            Assert.Equal(expected.Phone, body.GetProperty("phone").GetString());
+            Assert.Equal(expected.Tel, body.GetProperty("tel").GetString());
         }
     }
 }
