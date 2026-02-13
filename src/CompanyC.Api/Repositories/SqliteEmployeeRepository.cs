@@ -166,18 +166,11 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                 continue;
             }
 
-            try
-            {
-                using var alterCmd = connection.CreateCommand();
-                alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), $"\"{col}\"");
-                alterCmd.ExecuteNonQuery();
-                _logger.LogInformation("동적 컬럼 추가: {ColumnName}", col);
-            }
-            catch (SqliteException ex) when (ex.Message.Contains("duplicate column"))
-            {
-                _logger.LogDebug("컬럼 이미 존재 (동시 요청): {ColumnName}", col);
-            }
+            using var alterCmd = connection.CreateCommand();
+            alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), $"\"{col}\"");
+            alterCmd.ExecuteNonQuery();
             existingColumns.Add(col);
+            _logger.LogInformation("동적 컬럼 추가: {ColumnName}", col);
         }
     }
 
