@@ -23,7 +23,7 @@ src/CompanyC.Api/                      # API project (Minimal API)
   Employee.cs                          # Employee record model
   IEmployeeRepository.cs               # Repository interface (data access)
   SqliteEmployeeRepository.cs          # SQLite repository implementation
-  EmployeeQueries.xml                  # SQL queries (embedded resource)
+  EmployeeQueries.xml                  # SQL queries (Content, copied to output)
   QueryLoader.cs                       # XML query loader
   IEmployeeService.cs                  # Service interface (for DI/Moq)
   EmployeeService.cs                   # Business logic + CSV/JSON parsing
@@ -58,7 +58,8 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 ## Conventions
 - Minimal API (no controllers) - keep file count minimal
 - SQLite data persistence via Repository pattern (`IEmployeeRepository` → `SqliteEmployeeRepository`)
-- SQL queries stored in `EmployeeQueries.xml` (embedded resource), loaded via `QueryLoader`
+- SQL queries stored in `EmployeeQueries.xml` (Content file, copied to output dir), loaded via `QueryLoader` at startup
+- DBA가 재컴파일 없이 쿼리 수정 가능한 구조 (외부 파일 기반)
 - Connection string from `Configuration.GetConnectionString("Default")`, default: `Data Source=employees.db`
 - CSV format: email and phone may be space-separated (e.g. `charles@clovf.com 01075312468`)
 - Korean names supported (UTF-8)
