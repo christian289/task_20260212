@@ -37,10 +37,14 @@ src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
     GetEmployeeByNameQuery.cs          # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
   Commands/
     AddEmployeesCommand.cs             # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
+  Validators/
+    EmployeeValidator.cs               # FluentValidation 검증 규칙
+  Errors/
+    EmployeeErrors.cs                  # ErrorOr 에러 정의
 tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
   GlobalUsings.cs                      # 전역 using 선언
   TestWebApplicationFactory.cs         # 격리된 테스트 팩토리 (임시 SQLite DB)
-  EmployeeApiTests.cs                  # 통합 테스트 12개
+  EmployeeApiTests.cs                  # 통합 테스트 16개
   EmployeeApiMockTests.cs             # Moq 기반 단위 테스트 4개 (Handler 모킹)
   EmployeeBogusTests.cs               # Bogus 데이터 기반 테스트 6개
   EmployeeFaker.cs                     # Bogus 테스트 데이터 생성기 (CustomInstantiator)
@@ -52,7 +56,7 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
 ## 빌드 및 테스트
 ```bash
 dotnet build
-dotnet test                            # 테스트 22개 (통합 12 + Moq 4 + Bogus 6)
+dotnet test                            # 테스트 26개 (통합 16 + Moq 4 + Bogus 6)
 dotnet run --project src/CompanyC.Api  # API 서버 (Scalar UI: /scalar/v1)
 dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 ```

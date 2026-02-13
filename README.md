@@ -18,9 +18,9 @@ dotnet build
 dotnet run --project src/CompanyC.Api
 ```
 
-기본 실행 후 `http://localhost:5000` 에서 API를 사용할 수 있습니다.
+기본 실행 후 `http://localhost:5012` 에서 API를 사용할 수 있습니다.
 
-API 문서는 `http://localhost:5000/scalar/v1` 에서 Scalar UI로 확인할 수 있습니다.
+API 문서는 `http://localhost:5012/scalar/v1` 에서 Scalar UI로 확인할 수 있습니다.
 
 ## 테스트
 
@@ -28,14 +28,14 @@ API 문서는 `http://localhost:5000/scalar/v1` 에서 Scalar UI로 확인할 �
 dotnet test
 ```
 
-22개의 테스트가 실행됩니다 (통합 12 + Moq 4 + Bogus 6, `WebApplicationFactory` 기반, 별도 서버 실행 불필요).
+26개의 테스트가 실행됩니다 (통합 16 + Moq 4 + Bogus 6, `WebApplicationFactory` 기반, 별도 서버 실행 불필요).
 
 ## API 사용법
 
 ### 1. 직원 목록 조회 (페이징)
 
 ```bash
-curl http://localhost:5000/api/employee?page=1&pageSize=10
+curl http://localhost:5012/api/employee?page=1&pageSize=10
 ```
 
 응답 예시:
@@ -54,7 +54,7 @@ curl http://localhost:5000/api/employee?page=1&pageSize=10
 ### 2. 이름으로 직원 조회
 
 ```bash
-curl http://localhost:5000/api/employee/김철수
+curl http://localhost:5012/api/employee/김철수
 ```
 
 - 성공: `200 OK` + 직원 정보
@@ -65,7 +65,7 @@ curl http://localhost:5000/api/employee/김철수
 #### CSV body 직접 입력
 
 ```bash
-curl -X POST http://localhost:5000/api/employee \
+curl -X POST http://localhost:5012/api/employee \
   -H "Content-Type: text/csv" \
   -d "김철수, charles@clovf.com 01075312468, 2018.03.07
 박영희, matilda@clovf.com 01087654321, 2021.04.28"
@@ -74,7 +74,7 @@ curl -X POST http://localhost:5000/api/employee \
 #### JSON body 직접 입력
 
 ```bash
-curl -X POST http://localhost:5000/api/employee \
+curl -X POST http://localhost:5012/api/employee \
   -H "Content-Type: application/json" \
   -d '[{"name":"김클로","email":"clo@clovf.com","tel":"010-1111-2424","joined":"2012-01-05"}]'
 ```
@@ -82,14 +82,14 @@ curl -X POST http://localhost:5000/api/employee \
 #### CSV 파일 업로드
 
 ```bash
-curl -X POST http://localhost:5000/api/employee \
+curl -X POST http://localhost:5012/api/employee \
   -F "file=@employees.csv;type=text/csv"
 ```
 
 #### JSON 파일 업로드
 
 ```bash
-curl -X POST http://localhost:5000/api/employee \
+curl -X POST http://localhost:5012/api/employee \
   -F "file=@employees.json;type=application/json"
 ```
 
@@ -132,10 +132,14 @@ src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
     GetEmployeeByNameQuery.cs          # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
   Commands/
     AddEmployeesCommand.cs             # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
+  Validators/
+    EmployeeValidator.cs               # FluentValidation 검증 규칙
+  Errors/
+    EmployeeErrors.cs                  # ErrorOr 에러 정의
 tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
   GlobalUsings.cs                      # 전역 using 선언
   TestWebApplicationFactory.cs         # 격리된 테스트 팩토리 (임시 SQLite DB)
-  EmployeeApiTests.cs                  # 통합 테스트 12개
+  EmployeeApiTests.cs                  # 통합 테스트 16개
   EmployeeApiMockTests.cs              # Moq 기반 단위 테스트 4개 (Handler 모킹)
   EmployeeBogusTests.cs                # Bogus 데이터 기반 테스트 6개
   EmployeeFaker.cs                     # Bogus 테스트 데이터 생성기 (CustomInstantiator)
