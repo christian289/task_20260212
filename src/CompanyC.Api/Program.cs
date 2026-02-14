@@ -5,7 +5,6 @@ using CompanyC.Api.Models;
 using CompanyC.Api.Parsers;
 using CompanyC.Api.Queries;
 using CompanyC.Api.Repositories;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) =>
