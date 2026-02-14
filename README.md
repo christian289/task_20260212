@@ -28,7 +28,7 @@ API 문서는 `http://localhost:5012/scalar/v1` 에서 Scalar UI로 확인할 �
 dotnet test
 ```
 
-26개의 테스트가 실행됩니다 (통합 16 + Moq 4 + Bogus 6, `WebApplicationFactory` 기반, 별도 서버 실행 불필요).
+32개의 테스트가 실행됩니다 (통합 22 + Moq 4 + Bogus 6, `WebApplicationFactory` 기반, 별도 서버 실행 불필요).
 
 ## API 사용법
 
@@ -95,6 +95,20 @@ curl -X POST http://localhost:5012/api/employee \
 
 - 성공: `201 Created` + 추가된 직원 수 및 데이터
 
+### 4. 직원 정보 수정
+
+```bash
+curl -X PUT http://localhost:5012/api/employee/김철수 \
+  -H "Content-Type: application/json" \
+  -d '{"email":"new-email@clovf.com","tel":"01099998888"}'
+```
+
+- 성공: `200 OK` + 수정된 직원 정보
+- 미존재: `404 Not Found`
+- 유효성 검증 실패: `400 Bad Request`
+- 수정 후 다른 직원과 중복: `409 Conflict`
+- 요청 본문에 포함된 필드만 업데이트 (null 필드는 기존 값 유지)
+
 ## 더미 데이터 생성
 
 `tools/CompanyC.DataGen`으로 한국식 직원 더미 데이터를 생성할 수 있습니다.
@@ -134,6 +148,7 @@ src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
     GetEmployeeByNameQuery.cs          # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
   Commands/
     AddEmployeesCommand.cs             # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
+    UpdateEmployeeCommand.cs           # 커맨드: 직원 정보 수정 (요청 + 핸들러)
   Validators/
     EmployeeValidator.cs               # FluentValidation 검증 규칙
   Errors/
@@ -149,6 +164,8 @@ tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
 tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
   GlobalUsings.cs                      # 전역 using 선언
   Program.cs                           # Bogus 기반 한국어 직원 데이터 생성
+tools/concurrent-test.ps1              # Singleton+WAL POST 동시성 테스트 스크립트
+tools/update-test.ps1                  # PUT 수정 엔드포인트 테스트 스크립트
 ```
 
 ## 설계 결정사항
@@ -158,6 +175,7 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
   - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler`
   - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler`
   - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
+  - `UpdateEmployeeCommand` → `IUpdateEmployeeCommandHandler` → `UpdateEmployeeCommandHandler`
 - **SQLite 영속성**: Repository 패턴 (`IEmployeeRepository` → `SqliteEmployeeRepository`)
   - WAL 모드로 동시성 처리
   - Hash 기반 PK: `Name|Email|Tel|Joined`를 SHA256 해시하여 중복 데이터 방지 (`INSERT OR IGNORE`)
