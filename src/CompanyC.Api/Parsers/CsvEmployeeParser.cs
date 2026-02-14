@@ -87,7 +87,7 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
                         tel = value;
                         break;
                     case "joined":
-                        _ = TryParseDate(value, out joined);
+                        _ = DateParsingHelper.TryParseDate(value, out joined);
                         break;
                     default:
                         extraFields[headers[j]] = value;
@@ -140,7 +140,7 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
             {
                 if (token.Contains('@'))
                     email = token;
-                else if (TryParseDate(token, out var date))
+                else if (DateParsingHelper.TryParseDate(token, out var date))
                     joined = date;
                 else if (IsTelNumber(token))
                     tel = token;
@@ -155,21 +155,9 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
         return result;
     }
 
-    private static bool TryParseDate(string? value, out DateTime result)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            result = default;
-            return false;
-        }
-
-        string[] formats = ["yyyy-MM-dd", "yyyy.MM.dd", "yyyy/MM/dd"];
-        return DateTime.TryParseExact(value.Trim(), formats,
-            CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
-    }
-
     private static bool IsTelNumber(string value)
     {
-        return value.Replace("-", "").All(c => char.IsDigit(c) || c == '+');
+        var cleaned = value.Replace("-", "");
+        return cleaned.Length >= 8 && cleaned.All(c => char.IsDigit(c) || c == '+');
     }
 }

@@ -11,7 +11,6 @@ public sealed class EmployeeApiMockTests : IDisposable
     private readonly Mock<IAddEmployeesCommandHandler> _mockAddEmployees = new();
     private readonly HttpClient _client;
     private readonly TestWebApplicationFactory _factory;
-    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
 
     public EmployeeApiMockTests()
     {
@@ -88,7 +87,7 @@ public sealed class EmployeeApiMockTests : IDisposable
         var response = await _client.GetAsync("/api/employee/박모크");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var body = JsonSerializer.Deserialize<JsonElement>(await response.Content.ReadAsStringAsync(), _json);
+        var body = JsonSerializer.Deserialize<JsonElement>(await response.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
         Assert.Equal("박모크", body.GetProperty("name").GetString());
         Assert.Equal("mock@test.com", body.GetProperty("email").GetString());
         _mockGetByName.Verify(h => h.Handle(It.Is<GetEmployeeByNameQuery>(q => q.Name == "박모크")), Times.Once);

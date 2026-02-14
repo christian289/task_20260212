@@ -59,6 +59,9 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
 
+        // COUNT와 SELECT를 동일 트랜잭션으로 묶어 동시 INSERT에 의한 불일치 방지
+        using var transaction = connection.BeginTransaction();
+
         using var countCmd = connection.CreateCommand();
         countCmd.CommandText = QueryLoader.Get("Count");
         var totalCount = Convert.ToInt32(countCmd.ExecuteScalar());
@@ -75,6 +78,7 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
             items.Add(ReadEmployee(reader));
         }
 
+        transaction.Commit();
         return (items, totalCount);
     }
 
@@ -182,6 +186,8 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
 
             try
             {
+                // DDL은 파라미터화 불가 — IsValidColumnName 검증에 의존 (방어적 assertion)
+                System.Diagnostics.Debug.Assert(SafeColumnNamePattern().IsMatch(col), $"Invalid column name bypassed validation: {col}");
                 using var alterCmd = connection.CreateCommand();
                 alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), $"\"{col}\"");
                 alterCmd.ExecuteNonQuery();

@@ -37,4 +37,8 @@ public static class EmployeeErrors
     public static readonly Error AllDuplicate = Error.Conflict(
         code: "Employee.AllDuplicate",
         description: "모든 직원 데이터가 이미 등록되어 있습니다.");
+
+    public static readonly Error InvalidName = Error.Validation(
+        code: "Employee.InvalidName",
+        description: "이름이 비어 있거나 100자를 초과할 수 없습니다.");
 }

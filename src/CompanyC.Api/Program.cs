@@ -118,6 +118,11 @@ app.MapGet("/api/employee/{name}", (IGetEmployeeByNameQueryHandler handler, ILog
         ["SearchName"] = name
     }))
     {
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 100)
+        {
+            return EmployeeErrors.InvalidName.ToList().ToProblem();
+        }
+
         logger.GetEmployeeByNameStarted(name);
 
         return handler.Handle(new GetEmployeeByNameQuery(name))

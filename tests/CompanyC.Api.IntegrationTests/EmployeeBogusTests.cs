@@ -2,7 +2,6 @@ namespace CompanyC.Api.IntegrationTests;
 
 public sealed class EmployeeBogusTests : IDisposable
 {
-    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
     private readonly List<TestWebApplicationFactory> _factories = [];
 
     public void Dispose()
@@ -31,7 +30,7 @@ public sealed class EmployeeBogusTests : IDisposable
 
         var getResponse = await client.GetAsync($"/api/employee?page=1&pageSize={count + 10}");
         var body = JsonSerializer.Deserialize<JsonElement>(
-            await getResponse.Content.ReadAsStringAsync(), _json);
+            await getResponse.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
 
         Assert.Equal(count, body.GetProperty("totalCount").GetInt32());
     }
@@ -49,7 +48,7 @@ public sealed class EmployeeBogusTests : IDisposable
 
         var getResponse = await client.GetAsync($"/api/employee?page=1&pageSize={count + 10}");
         var body = JsonSerializer.Deserialize<JsonElement>(
-            await getResponse.Content.ReadAsStringAsync(), _json);
+            await getResponse.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
 
         Assert.Equal(count, body.GetProperty("totalCount").GetInt32());
     }
@@ -73,7 +72,7 @@ public sealed class EmployeeBogusTests : IDisposable
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = JsonSerializer.Deserialize<JsonElement>(
-            await response.Content.ReadAsStringAsync(), _json);
+            await response.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
         Assert.Equal(target.Name, body.GetProperty("name").GetString());
         Assert.Equal(target.Email, body.GetProperty("email").GetString());
     }
@@ -90,7 +89,7 @@ public sealed class EmployeeBogusTests : IDisposable
         // Page 1 of size 10
         var page1 = await client.GetAsync("/api/employee?page=1&pageSize=10");
         var body1 = JsonSerializer.Deserialize<JsonElement>(
-            await page1.Content.ReadAsStringAsync(), _json);
+            await page1.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
         Assert.Equal(25, body1.GetProperty("totalCount").GetInt32());
         Assert.Equal(3, body1.GetProperty("totalPages").GetInt32());
         Assert.Equal(10, body1.GetProperty("data").GetArrayLength());
@@ -98,7 +97,7 @@ public sealed class EmployeeBogusTests : IDisposable
         // Page 3 of size 10 should have 5 items
         var page3 = await client.GetAsync("/api/employee?page=3&pageSize=10");
         var body3 = JsonSerializer.Deserialize<JsonElement>(
-            await page3.Content.ReadAsStringAsync(), _json);
+            await page3.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
         Assert.Equal(5, body3.GetProperty("data").GetArrayLength());
     }
 
@@ -121,7 +120,7 @@ public sealed class EmployeeBogusTests : IDisposable
             var response = await client.GetAsync($"/api/employee/{Uri.EscapeDataString(expected.Name)}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var body = JsonSerializer.Deserialize<JsonElement>(
-                await response.Content.ReadAsStringAsync(), _json);
+                await response.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
             Assert.Equal(expected.Email, body.GetProperty("email").GetString());
             Assert.Equal(expected.Tel, body.GetProperty("tel").GetString());
         }
@@ -151,7 +150,7 @@ public sealed class EmployeeBogusTests : IDisposable
             var response = await client.GetAsync($"/api/employee/{Uri.EscapeDataString(expected.Name)}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var body = JsonSerializer.Deserialize<JsonElement>(
-                await response.Content.ReadAsStringAsync(), _json);
+                await response.Content.ReadAsStringAsync(), TestJsonOptions.CaseInsensitive);
             Assert.Equal(expected.Email, body.GetProperty("email").GetString());
             Assert.Equal(expected.Tel, body.GetProperty("tel").GetString());
         }
