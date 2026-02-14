@@ -10,3 +10,5 @@ global using ErrorOr;
 global using FluentValidation;
 global using Microsoft.Data.Sqlite;
 global using Scalar.AspNetCore;
+global using Serilog;
+global using ILogger = Microsoft.Extensions.Logging.ILogger;
