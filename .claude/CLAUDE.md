@@ -28,6 +28,7 @@ src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
     IEmployeeParser.cs                 # 파서 인터페이스 (CanParse + Parse)
     CsvEmployeeParser.cs               # CSV 형식 파서
     JsonEmployeeParser.cs              # JSON 형식 파서 (알 수 없는 키 → ExtraFields)
+    DateParsingHelper.cs               # 날짜 파싱 공유 헬퍼 (CSV/JSON 파서 공용)
   Repositories/
     IEmployeeRepository.cs             # 저장소 인터페이스 (데이터 접근)
     SqliteEmployeeRepository.cs        # SQLite 저장소 구현체
@@ -49,6 +50,7 @@ tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
   EmployeeApiMockTests.cs             # Moq 기반 단위 테스트 4개 (Handler 모킹)
   EmployeeBogusTests.cs               # Bogus 데이터 기반 테스트 6개
   EmployeeFaker.cs                     # Bogus 테스트 데이터 생성기 (CustomInstantiator)
+  TestJsonOptions.cs                   # 테스트 공유 JsonSerializerOptions
 tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
   GlobalUsings.cs                      # 전역 using 선언
   Program.cs                           # Bogus 기반 한국어 직원 데이터 생성
@@ -65,7 +67,7 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 
 ## API 엔드포인트
 - `GET /api/employee?page={page}&pageSize={pageSize}` - 페이지네이션 직원 목록
-- `GET /api/employee/{name}` - 이름으로 직원 조회 (미발견 시 404)
+- `GET /api/employee/{name}` - 이름으로 직원 조회 (미발견 시 404, 빈값/100자 초과 시 400)
 - `POST /api/employee` - 직원 추가 (CSV 본문, JSON 본문, CSV 파일, JSON 파일)
 - `GET /openapi/v1.json` - OpenAPI 명세
 - `GET /scalar/v1` - Scalar API 문서 UI
@@ -75,7 +77,7 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
   - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler`
   - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler`
   - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
-- **Employee**: 필수 필드(Name, Email, Tel, Joined) + `Dictionary<string, string> ExtraFields`를 가진 `sealed class`
+- **Employee**: 필수 필드(Name, Email, Tel, Joined) + `Dictionary<string, string> ExtraFields`를 가진 `sealed class` (`init` 속성으로 불변성 보장)
 - **파서**: `IEmployeeParser` 인터페이스, `CanParse(contentType, extension)` 전략 패턴
   - `CsvEmployeeParser`: CSV/text/plain 파싱 (헤더 감지 시 ExtraFields 지원, 미감지 시 heuristic)
   - `JsonEmployeeParser`: JSON 파싱 (알 수 없는 키 → ExtraFields)
