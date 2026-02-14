@@ -27,7 +27,7 @@ public sealed class EmployeeValidator : AbstractValidator<Employee>
         RuleFor(x => x.Joined)
             .Must(d => d != default)
             .WithMessage("입사일이 유효하지 않습니다.")
-            .LessThanOrEqualTo(DateTime.Now.Date.AddDays(1))
+            .Must(d => d <= DateTime.Now.Date.AddDays(1))
             .WithMessage("입사일은 미래일 수 없습니다.");
     }
 }

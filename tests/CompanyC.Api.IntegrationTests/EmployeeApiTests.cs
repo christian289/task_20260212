@@ -3,7 +3,6 @@ namespace CompanyC.Api.IntegrationTests;
 public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClassFixture<TestWebApplicationFactory>, IDisposable
 {
     private readonly HttpClient _client = factory.CreateClient();
-    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
     private readonly List<TestWebApplicationFactory> _factories = [];
 
     public void Dispose()
@@ -273,7 +272,7 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
     private static async Task<T> Deserialize<T>(HttpResponseMessage response)
     {
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<T>(json, _json)!;
+        return JsonSerializer.Deserialize<T>(json, TestJsonOptions.CaseInsensitive)!;
     }
 
     private sealed record PagedResponse(int Page, int PageSize, int TotalCount, int TotalPages, EmployeeDto[] Data);

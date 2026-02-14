@@ -6,7 +6,10 @@ namespace CompanyC.Api.Parsers;
 public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEmployeeParser
 {
     private static readonly JsonSerializerOptions JsonReadOptions = new() { PropertyNameCaseInsensitive = true };
-    private static readonly string[] KnownKeys = ["name", "email", "tel", "joined"];
+    private static readonly HashSet<string> KnownKeys = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "name", "email", "tel", "joined"
+    };
 
     public bool CanParse(string? contentType, string? fileExtension)
     {
@@ -27,8 +30,11 @@ public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEm
 
             var result = new List<Employee>();
 
-            foreach (var item in items)
+            foreach (var rawItem in items)
             {
+                // case-insensitive Dictionary로 변환하여 O(1) 탐색
+                var item = new Dictionary<string, JsonElement>(rawItem, StringComparer.OrdinalIgnoreCase);
+
                 var name = GetString(item, "name");
                 var email = GetString(item, "email");
 
@@ -41,7 +47,7 @@ public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEm
                 var extraFields = new Dictionary<string, string>();
                 foreach (var kvp in item)
                 {
-                    if (!KnownKeys.Contains(kvp.Key.ToLowerInvariant()))
+                    if (!KnownKeys.Contains(kvp.Key))
                         extraFields[kvp.Key] = kvp.Value.ToString();
                 }
 
@@ -50,7 +56,7 @@ public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEm
                     Name = name.Trim(),
                     Email = email.Trim(),
                     Tel = tel.Trim(),
-                    Joined = TryParseDate(joined, out var d) ? d : default,
+                    Joined = DateParsingHelper.TryParseDate(joined, out var d) ? d : default,
                     ExtraFields = extraFields
                 });
             }
@@ -72,22 +78,14 @@ public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEm
 
     private static string? GetString(Dictionary<string, JsonElement> item, string key)
     {
-        var match = item.FirstOrDefault(kvp => kvp.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
-        return match.Key is not null && match.Value.ValueKind == JsonValueKind.String
-            ? match.Value.GetString()
-            : null;
-    }
+        if (!item.TryGetValue(key, out var value))
+            return null;
 
-    private static bool TryParseDate(string? value, out DateTime result)
-    {
-        if (string.IsNullOrWhiteSpace(value))
+        return value.ValueKind switch
         {
-            result = default;
-            return false;
-        }
-
-        string[] formats = ["yyyy-MM-dd", "yyyy.MM.dd", "yyyy/MM/dd"];
-        return DateTime.TryParseExact(value.Trim(), formats,
-            CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
+            JsonValueKind.String => value.GetString(),
+            JsonValueKind.Number => value.GetRawText(),
+            _ => null
+        };
     }
 }
