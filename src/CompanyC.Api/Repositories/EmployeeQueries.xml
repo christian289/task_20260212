@@ -3,7 +3,7 @@
   <Query Name="EnableWalMode">PRAGMA journal_mode=WAL;</Query>
   <Query Name="CreateTable">
     CREATE TABLE IF NOT EXISTS Employees (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+        Hash TEXT PRIMARY KEY,
         Name TEXT NOT NULL,
         Email TEXT NOT NULL,
         Tel TEXT NOT NULL,
@@ -14,7 +14,7 @@
   <Query Name="AddColumn">ALTER TABLE Employees ADD COLUMN {0} TEXT</Query>
   <Query Name="Count">SELECT COUNT(*) FROM Employees</Query>
   <Query Name="SelectPaged">
-    SELECT * FROM Employees ORDER BY Id LIMIT @limit OFFSET @offset
+    SELECT * FROM Employees ORDER BY Name LIMIT @limit OFFSET @offset
   </Query>
   <Query Name="SelectByName">
     SELECT * FROM Employees WHERE Name = @name COLLATE NOCASE LIMIT 1

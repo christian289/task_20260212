@@ -1,3 +1,4 @@
+using CompanyC.Api;
 using CompanyC.Api.Commands;
 using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
@@ -71,14 +72,13 @@ app.MapGet("/api/employee", (IGetEmployeesQueryHandler handler, ILogger<Program>
         if (pageSize < 1) pageSize = 10;
         if (pageSize > 100) pageSize = 100;
 
-        logger.LogDebug("직원 목록 조회 시작: Page={Page}, PageSize={PageSize}", page, pageSize);
+        logger.GetEmployeesStarted(page, pageSize);
 
         return handler.Handle(new GetEmployeesQuery(page, pageSize))
             .Match(
                 result =>
                 {
-                    logger.LogInformation("직원 목록 조회 완료: {ReturnedCount}/{TotalCount}건",
-                        result.Items.Count, result.TotalCount);
+                    logger.GetEmployeesCompleted(result.Items.Count, result.TotalCount);
                     return Results.Ok(new PagedResponse(
                         page, pageSize, result.TotalCount,
                         (int)Math.Ceiling((double)result.TotalCount / pageSize),
@@ -86,8 +86,7 @@ app.MapGet("/api/employee", (IGetEmployeesQueryHandler handler, ILogger<Program>
                 },
                 errors =>
                 {
-                    logger.LogWarning("직원 목록 조회 실패: {ErrorCode} - {ErrorDescription}",
-                        errors[0].Code, errors[0].Description);
+                    logger.GetEmployeesFailed(errors[0].Code, errors[0].Description);
                     return errors.ToProblem();
                 });
     }
@@ -107,19 +106,18 @@ app.MapGet("/api/employee/{name}", (IGetEmployeeByNameQueryHandler handler, ILog
         ["SearchName"] = name
     }))
     {
-        logger.LogDebug("이름으로 직원 조회 시작: Name={Name}", name);
+        logger.GetEmployeeByNameStarted(name);
 
         return handler.Handle(new GetEmployeeByNameQuery(name))
             .Match(
                 employee =>
                 {
-                    logger.LogInformation("직원 조회 성공: {EmployeeName}", employee.Name);
+                    logger.GetEmployeeByNameSuccess(employee.Name);
                     return Results.Ok(employee);
                 },
                 errors =>
                 {
-                    logger.LogWarning("직원 조회 실패: {ErrorCode} - {ErrorDescription}",
-                        errors[0].Code, errors[0].Description);
+                    logger.GetEmployeeByNameFailed(errors[0].Code, errors[0].Description);
                     return errors.ToProblem();
                 });
     }
@@ -153,20 +151,19 @@ app.MapPost("/api/employee", async (HttpRequest request, IAddEmployeesCommandHan
                 var file = form.Files.Count > 0 ? form.Files[0] : null;
                 if (file is null || file.Length == 0)
                 {
-                    logger.LogWarning("파일 업로드 실패: 파일 없음 또는 빈 파일");
+                    logger.FileUploadEmpty();
                     return EmployeeErrors.NoFileUploaded.ToList().ToProblem();
                 }
 
                 fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-                logger.LogDebug("파일 업로드 수신: FileName={FileName}, Size={FileSize}, Extension={Extension}",
-                    file.FileName, file.Length, fileExtension);
+                logger.FileUploadReceived(file.FileName, file.Length, fileExtension);
 
                 using var reader = new StreamReader(file.OpenReadStream());
                 content = await reader.ReadToEndAsync();
             }
             catch (InvalidDataException ex)
             {
-                logger.LogWarning("잘못된 multipart 요청: {ErrorMessage}", ex.Message);
+                logger.InvalidMultipartRequest(ex.Message);
                 return EmployeeErrors.NoFileUploaded.ToList().ToProblem();
             }
         }
@@ -176,23 +173,22 @@ app.MapPost("/api/employee", async (HttpRequest request, IAddEmployeesCommandHan
             content = await reader.ReadToEndAsync();
             if (string.IsNullOrWhiteSpace(content))
             {
-                logger.LogWarning("빈 요청 본문 수신");
+                logger.EmptyRequestBody();
                 return EmployeeErrors.EmptyBody.ToList().ToProblem();
             }
-            logger.LogDebug("본문 직접 입력 수신: ContentLength={ContentLength}", content.Length);
+            logger.DirectBodyReceived(content.Length);
         }
 
         return handler.Handle(new AddEmployeesCommand(content, contentType, fileExtension))
             .Match(
                 added =>
                 {
-                    logger.LogInformation("직원 {Count}명 등록 완료", added.Count);
+                    logger.EmployeesRegistered(added.Count);
                     return Results.Created("/api/employee", new CreatedResponse(added.Count, added.ToArray()));
                 },
                 errors =>
                 {
-                    logger.LogWarning("직원 등록 실패: {ErrorCode} - {ErrorDescription}",
-                        errors[0].Code, errors[0].Description);
+                    logger.EmployeesRegistrationFailed(errors[0].Code, errors[0].Description);
                     return errors.ToProblem();
                 });
     }

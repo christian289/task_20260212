@@ -1,3 +1,4 @@
+using CompanyC.Api;
 using CompanyC.Api.Models;
 using CompanyC.Api.Repositories;
 
@@ -18,9 +19,9 @@ public sealed class GetEmployeesQueryHandler(
 {
     public ErrorOr<GetEmployeesResult> Handle(GetEmployeesQuery query)
     {
-        logger.LogDebug("DB 조회 실행: Page={Page}, PageSize={PageSize}", query.Page, query.PageSize);
+        logger.DbQueryExecuting(query.Page, query.PageSize);
         var (items, totalCount) = repository.GetAll(query.Page, query.PageSize);
-        logger.LogDebug("DB 조회 완료: {ReturnedCount}/{TotalCount}건", items.Count, totalCount);
+        logger.DbQueryCompleted(items.Count, totalCount);
         return new GetEmployeesResult(items, totalCount);
     }
 }

@@ -1,3 +1,4 @@
+using CompanyC.Api;
 using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
 
@@ -20,7 +21,7 @@ public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEm
     {
         try
         {
-            logger.LogDebug("JSON 파싱 시작: ContentLength={ContentLength}", content.Length);
+            logger.JsonParsingStarted(content.Length);
 
             var items = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(content, JsonReadOptions)
                 ?? [];
@@ -55,17 +56,17 @@ public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEm
                 });
             }
 
-            logger.LogDebug("JSON 파싱 완료: {Count}건", result.Count);
+            logger.JsonParsingCompleted(result.Count);
             return result;
         }
         catch (JsonException ex)
         {
-            logger.LogError(ex, "JSON 파싱 중 오류 발생");
+            logger.JsonParsingError(ex);
             return EmployeeErrors.ParseFailed("JSON", ex.Message);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "JSON 파싱 중 오류 발생");
+            logger.JsonParsingError(ex);
             return EmployeeErrors.ParseFailed("JSON", ex.Message);
         }
     }
