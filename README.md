@@ -267,3 +267,48 @@ pwsh -ExecutionPolicy Bypass -File "tools/concurrent-test.ps1"
 ### 결론
 
 Singleton + SQLite WAL 구조는 **수백 건 수준의 동시 요청**에서 안정적으로 작동합니다. 극단적 부하(1,000+ 동시 요청)에서의 실패는 DB 레이어가 아닌 HTTP 서버 레이어의 한계이며, 이 규모에서는 DB를 PostgreSQL 등으로 전환하거나 앞단에 큐잉 시스템을 도입하는 것이 적절합니다.
+
+## 파일 업로드 테스트 (CSV/JSON multipart/form-data)
+
+서버 실행 상태에서 `curl`을 사용하여 CSV/JSON 파일 업로드 기능을 수동 검증했습니다.
+
+### 테스트 결과
+
+| 테스트 | 형식 | 결과 | HTTP |
+|--------|------|------|------|
+| CSV 파일 업로드 (5명) | multipart/form-data | 성공 | 201 |
+| JSON 파일 업로드 (5명) | multipart/form-data | 성공 | 201 |
+| CSV 중복 파일 재업로드 | multipart/form-data | 정상 거부 | 409 |
+| JSON 중복 파일 재업로드 | multipart/form-data | 정상 거부 | 409 |
+| CSV + ExtraFields (영문 헤더) | multipart/form-data | 성공 (department, position 저장) | 201 |
+| JSON + ExtraFields | multipart/form-data | 성공 (department, position, note 저장) | 201 |
+| 대용량 CSV (500명) | multipart/form-data | 성공 | 201 |
+| 대용량 JSON (500명) | multipart/form-data | 성공 | 201 |
+| 빈 파일 업로드 | multipart/form-data | 정상 거부 | 400 |
+| 잘못된 확장자 (.txt) | multipart/form-data | 정상 거부 | 400 |
+| 업로드 후 이름으로 조회 | GET | 정상 조회 | 200 |
+
+### 테스트 명령 예시
+
+```bash
+# CSV 파일 업로드
+curl -X POST http://localhost:5012/api/employee \
+  -F "file=@employees.csv;filename=employees.csv"
+
+# JSON 파일 업로드
+curl -X POST http://localhost:5012/api/employee \
+  -F "file=@employees.json;filename=employees.json"
+```
+
+### 검증 항목
+
+- **정상 등록**: CSV/JSON 파일 모두 `201 Created` 반환, 한글 이름·이메일·전화번호·입사일 정상 파싱
+- **ExtraFields**: JSON 파일의 추가 필드(department, position, note)가 DB 컬럼으로 동적 생성되어 저장됨
+- **중복 방지**: 동일 파일 재업로드 시 `409 Conflict` 반환 (Hash PK 기반 `INSERT OR IGNORE`)
+- **에러 처리**: 빈 파일 → `400` (NoFileUploaded), 지원하지 않는 확장자 → `400` (NoValidData)
+- **대용량**: 500명 단위 파일도 정상 처리
+- **DB 영속성**: 업로드 후 `GET /api/employee/{name}`으로 저장된 데이터 조회 확인
+
+### 참고사항
+
+CSV 파일에서 한글 헤더(`이름,이메일,전화번호,입사일`)를 사용할 경우, 파서가 heuristic 모드로 동작하여 ExtraFields가 무시됩니다. ExtraFields를 활용하려면 영문 헤더(`name,email,tel,joined,department,...`)를 사용해야 합니다.
