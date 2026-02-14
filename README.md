@@ -161,9 +161,11 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
 - **SQLite 영속성**: Repository 패턴 (`IEmployeeRepository` → `SqliteEmployeeRepository`)
   - WAL 모드로 동시성 처리
   - Hash 기반 PK: `Name|Email|Tel|Joined`를 SHA256 해시하여 중복 데이터 방지 (`INSERT OR IGNORE`)
-  - ExtraFields를 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
+  - ExtraFields를 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN, 트랜잭션 내 DDL)
   - SELECT *로 읽은 후 기본 컬럼(Hash, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
   - `DateTime.TryParseExact`로 SQLite TEXT 값 안전 파싱 (SQLite에 DateTime 타입 없음)
+- **보안**: 에러 응답에 내부 예외 메시지/DB 경로 미포함 — 상세 내용은 Serilog 로그에만 기록
+- **입력 검증**: 페이지네이션 page 상한(10,000,000), name 길이 제한(100자), pageSize 범위 제한(1~100)
 - **로깅**: Serilog (Console + 일별 롤링 파일 `logs/CompanyC-{date}.txt`, 30일 보관)
   - `[LoggerMessage]` Source Generator 패턴으로 고성능 구조화 로깅 (CA1848/CA1873 준수)
   - 모든 로그 메서드는 `LogMessages.cs`에 중앙 관리
@@ -179,6 +181,7 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
 - **JsonSerializerOptions 사전 정의**: 리플렉션 캐시 재사용을 위해 `static readonly`로 선언
 - **LoggerMessage Source Generator**: `[LoggerMessage]` 어트리뷰트로 컴파일 타임 로그 코드 생성 (박싱/문자열 보간 오버헤드 제거)
 - **CQRS Handler 인터페이스**: DI 기반 테스트(Moq) 지원을 위한 인터페이스 추출
+- **Query Handler 예외 처리**: 모든 Query/Command 핸들러에서 `ErrorOr` 패턴으로 예외를 래핑하여 일관된 에러 응답 반환
 - **전역 using 관리**: 외부 네임스페이스는 `GlobalUsings.cs`에 집중 관리
 
 ## ExtraFields 컬럼명 보안 (SQL Injection 방지)
