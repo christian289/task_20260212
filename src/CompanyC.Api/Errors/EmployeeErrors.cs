@@ -33,4 +33,8 @@ public static class EmployeeErrors
     public static Error ValidationFailed(string details) => Error.Validation(
         code: "Employee.ValidationFailed",
         description: details);
+
+    public static readonly Error AllDuplicate = Error.Conflict(
+        code: "Employee.AllDuplicate",
+        description: "모든 직원 데이터가 이미 등록되어 있습니다.");
 }
