@@ -5,7 +5,6 @@ using CompanyC.Api.Models;
 using CompanyC.Api.Parsers;
 using CompanyC.Api.Queries;
 using CompanyC.Api.Repositories;
-using CompanyC.Api.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi(options =>
@@ -82,7 +81,7 @@ app.MapGet("/api/employee", (IGetEmployeesQueryHandler handler, ILogger<Program>
                     return Results.Ok(new PagedResponse(
                         page, pageSize, result.TotalCount,
                         (int)Math.Ceiling((double)result.TotalCount / pageSize),
-                        result.Items.ToArray()));
+                        [.. result.Items]));
                 },
                 errors =>
                 {
@@ -184,7 +183,7 @@ app.MapPost("/api/employee", async (HttpRequest request, IAddEmployeesCommandHan
                 added =>
                 {
                     logger.EmployeesRegistered(added.Count);
-                    return Results.Created("/api/employee", new CreatedResponse(added.Count, added.ToArray()));
+                    return Results.Created("/api/employee", new CreatedResponse(added.Count, [.. added]));
                 },
                 errors =>
                 {

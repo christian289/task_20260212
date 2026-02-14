@@ -1,5 +1,3 @@
-using System.Text;
-using CompanyC.Api;
 using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
 

@@ -1,4 +1,3 @@
-using CompanyC.Api;
 using CompanyC.Api.Models;
 using CompanyC.Api.Repositories;
 

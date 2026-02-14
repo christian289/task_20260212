@@ -1,4 +1,3 @@
-using CompanyC.Api;
 using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
 using CompanyC.Api.Parsers;
