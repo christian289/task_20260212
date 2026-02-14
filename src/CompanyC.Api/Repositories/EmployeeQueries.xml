@@ -19,4 +19,11 @@
   <Query Name="SelectByName">
     SELECT * FROM Employees WHERE Name = @name COLLATE NOCASE LIMIT 1
   </Query>
+  <Query Name="SelectByHash">
+    SELECT * FROM Employees WHERE Hash = @hash LIMIT 1
+  </Query>
+  <Query Name="UpdateByHash">
+    UPDATE Employees SET Hash = @newHash, Name = @name, Email = @email, Tel = @tel, Joined = @joined
+    WHERE Hash = @oldHash
+  </Query>
 </Queries>

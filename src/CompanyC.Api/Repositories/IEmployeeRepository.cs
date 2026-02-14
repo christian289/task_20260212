@@ -7,4 +7,5 @@ public interface IEmployeeRepository
     (IReadOnlyList<Employee> Items, int TotalCount) GetAll(int page, int pageSize);
     Employee? GetByName(string name);
     ErrorOr<List<Employee>> AddRange(List<Employee> employees);
+    ErrorOr<Employee> Update(string currentHash, Employee updated);
 }

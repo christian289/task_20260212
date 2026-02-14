@@ -123,6 +123,30 @@ internal static partial class LogMessages
     [LoggerMessage(EventId = 5007, Level = LogLevel.Debug, Message = "CSV 행 건너뜀 (필수 필드 누락): Line={LineNumber}")]
     internal static partial void CsvRowSkipped(this ILogger logger, int lineNumber);
 
+    // === Repository - Update ===
+    [LoggerMessage(EventId = 1008, Level = LogLevel.Information, Message = "직원 정보 수정 완료: {EmployeeName}")]
+    internal static partial void EmployeeUpdated(this ILogger logger, string employeeName);
+
+    [LoggerMessage(EventId = 1009, Level = LogLevel.Warning, Message = "수정 대상 직원 미발견: Hash={Hash}")]
+    internal static partial void EmployeeNotFoundByHash(this ILogger logger, string hash);
+
+    // === Endpoints - PUT /api/employee/{name} ===
+    [LoggerMessage(EventId = 2014, Level = LogLevel.Debug, Message = "직원 수정 시작: Name={Name}")]
+    internal static partial void UpdateEmployeeStarted(this ILogger logger, string name);
+
+    [LoggerMessage(EventId = 2015, Level = LogLevel.Information, Message = "직원 수정 성공: {EmployeeName}")]
+    internal static partial void UpdateEmployeeSuccess(this ILogger logger, string employeeName);
+
+    [LoggerMessage(EventId = 2016, Level = LogLevel.Warning, Message = "직원 수정 실패: {ErrorCode} - {ErrorDescription}")]
+    internal static partial void UpdateEmployeeFailed(this ILogger logger, string errorCode, string errorDescription);
+
+    // === Command Handler - Update ===
+    [LoggerMessage(EventId = 4011, Level = LogLevel.Debug, Message = "직원 수정 처리: CurrentName={CurrentName}")]
+    internal static partial void UpdateCommandExecuting(this ILogger logger, string currentName);
+
+    [LoggerMessage(EventId = 4012, Level = LogLevel.Debug, Message = "직원 수정 완료: {EmployeeName}")]
+    internal static partial void UpdateCommandCompleted(this ILogger logger, string employeeName);
+
     // === JSON Parser ===
     [LoggerMessage(EventId = 5004, Level = LogLevel.Debug, Message = "JSON 파싱 시작: ContentLength={ContentLength}")]
     internal static partial void JsonParsingStarted(this ILogger logger, int contentLength);

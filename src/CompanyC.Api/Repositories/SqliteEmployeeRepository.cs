@@ -170,6 +170,54 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
         }
     }
 
+    public ErrorOr<Employee> Update(string currentHash, Employee updated)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            var newHash = ComputeHash(updated);
+
+            // 변경된 해시가 이미 존재하는지 확인 (다른 직원과 중복 방지)
+            if (newHash != currentHash)
+            {
+                using var checkCmd = connection.CreateCommand();
+                checkCmd.CommandText = QueryLoader.Get("SelectByHash");
+                checkCmd.Parameters.AddWithValue("@hash", newHash);
+                using var checkReader = checkCmd.ExecuteReader();
+                if (checkReader.Read())
+                {
+                    return EmployeeErrors.DuplicateAfterUpdate;
+                }
+            }
+
+            using var command = connection.CreateCommand();
+            command.CommandText = QueryLoader.Get("UpdateByHash");
+            command.Parameters.AddWithValue("@newHash", newHash);
+            command.Parameters.AddWithValue("@name", updated.Name);
+            command.Parameters.AddWithValue("@email", updated.Email);
+            command.Parameters.AddWithValue("@tel", updated.Tel);
+            command.Parameters.AddWithValue("@joined", updated.Joined.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            command.Parameters.AddWithValue("@oldHash", currentHash);
+
+            var affected = command.ExecuteNonQuery();
+            if (affected == 0)
+            {
+                _logger.EmployeeNotFoundByHash(currentHash);
+                return EmployeeErrors.NotFound(updated.Name);
+            }
+
+            _logger.EmployeeUpdated(updated.Name);
+            return updated;
+        }
+        catch (Exception ex)
+        {
+            _logger.StorageError(ex);
+            return EmployeeErrors.StorageFailed;
+        }
+    }
+
     private void EnsureColumns(SqliteConnection connection, List<string> requiredColumns)
     {
         var existingColumns = GetExistingColumns(connection);
