@@ -17,6 +17,10 @@ builder.Host.UseSerilog((context, configuration) =>
             rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 30,
             outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"));
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+});
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, ct) =>
@@ -219,6 +223,11 @@ record ErrorDetail(string Code, string Description);
 
 static class ErrorOrExtensions
 {
+    private static readonly JsonSerializerOptions JsonErrorOptions = new(JsonSerializerDefaults.Web)
+    {
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+    };
+
     internal static IResult ToProblem(this List<Error> errors)
     {
         var first = errors[0];
@@ -231,7 +240,7 @@ static class ErrorOrExtensions
         };
 
         var details = errors.Select(e => new ErrorDetail(e.Code, e.Description)).ToArray();
-        return Results.Json(new { errors = details }, statusCode: statusCode);
+        return Results.Json(new { errors = details }, JsonErrorOptions, statusCode: statusCode);
     }
 
     internal static List<Error> ToList(this Error error) => [error];
