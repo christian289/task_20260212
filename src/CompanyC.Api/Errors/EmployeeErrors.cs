@@ -41,4 +41,8 @@ public static class EmployeeErrors
     public static readonly Error InvalidName = Error.Validation(
         code: "Employee.InvalidName",
         description: "이름이 비어 있거나 100자를 초과할 수 없습니다.");
+
+    public static readonly Error DuplicateAfterUpdate = Error.Conflict(
+        code: "Employee.DuplicateAfterUpdate",
+        description: "수정된 정보가 기존 다른 직원과 중복됩니다.");
 }

@@ -254,6 +254,97 @@ public sealed class EmployeeApiTests(TestWebApplicationFactory factory) : IClass
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    // === PUT /api/employee/{name} (직원 수정) ===
+
+    [Fact]
+    public async Task PutEmployee_ReturnsOk_WhenUpdated()
+    {
+        var client = CreateIsolatedClient();
+        await PostCsvBody(client, "홍길동, kildong-hong@clovf.com, 01012345678, 2015.08.15");
+
+        var updateJson = """{"email":"new-email@clovf.com"}""";
+        var response = await client.PutAsync("/api/employee/홍길동",
+            new StringContent(updateJson, Encoding.UTF8, "application/json"));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await Deserialize<EmployeeDto>(response);
+        Assert.Equal("홍길동", body.Name);
+        Assert.Equal("new-email@clovf.com", body.Email);
+        Assert.Equal("01012345678", body.Tel);
+    }
+
+    [Fact]
+    public async Task PutEmployee_ReturnsNotFound_WhenNotExists()
+    {
+        var client = CreateIsolatedClient();
+        var updateJson = """{"email":"test@test.com"}""";
+        var response = await client.PutAsync("/api/employee/없는사람",
+            new StringContent(updateJson, Encoding.UTF8, "application/json"));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutEmployee_UpdatesMultipleFields()
+    {
+        var client = CreateIsolatedClient();
+        await PostCsvBody(client, "김철수, charles@clovf.com, 01075312468, 2018.03.07");
+
+        var updateJson = """{"email":"updated@clovf.com","tel":"01099998888","joined":"2020-01-01"}""";
+        var response = await client.PutAsync("/api/employee/김철수",
+            new StringContent(updateJson, Encoding.UTF8, "application/json"));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await Deserialize<EmployeeDto>(response);
+        Assert.Equal("updated@clovf.com", body.Email);
+        Assert.Equal("01099998888", body.Tel);
+        Assert.Equal(new DateTime(2020, 1, 1), body.Joined);
+    }
+
+    [Fact]
+    public async Task PutEmployee_InvalidEmail_ReturnsBadRequest()
+    {
+        var client = CreateIsolatedClient();
+        await PostCsvBody(client, "홍길동, kildong-hong@clovf.com, 01012345678, 2015.08.15");
+
+        var updateJson = """{"email":"not-an-email"}""";
+        var response = await client.PutAsync("/api/employee/홍길동",
+            new StringContent(updateJson, Encoding.UTF8, "application/json"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutEmployee_UpdatedDataRetrievable()
+    {
+        var client = CreateIsolatedClient();
+        await PostCsvBody(client, "박영희, matilda@clovf.com, 01087654321, 2021.04.28");
+
+        var updateJson = """{"email":"new-matilda@clovf.com"}""";
+        await client.PutAsync("/api/employee/박영희",
+            new StringContent(updateJson, Encoding.UTF8, "application/json"));
+
+        var getResponse = await client.GetAsync("/api/employee/박영희");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+        var body = await Deserialize<EmployeeDto>(getResponse);
+        Assert.Equal("new-matilda@clovf.com", body.Email);
+    }
+
+    [Fact]
+    public async Task PutEmployee_DuplicateAfterUpdate_ReturnsConflict()
+    {
+        var client = CreateIsolatedClient();
+        // 두 명 등록
+        await PostCsvBody(client, "김철수, charles@clovf.com, 01075312468, 2018.03.07\n박영희, matilda@clovf.com, 01087654321, 2021.04.28");
+
+        // 박영희를 김철수와 동일한 정보로 수정 시도
+        var updateJson = """{"name":"김철수","email":"charles@clovf.com","tel":"01075312468","joined":"2018-03-07"}""";
+        var response = await client.PutAsync("/api/employee/박영희",
+            new StringContent(updateJson, Encoding.UTF8, "application/json"));
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
     // === Helpers ===
 
     private HttpClient CreateIsolatedClient()

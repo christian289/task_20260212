@@ -43,6 +43,7 @@ builder.Services.AddSingleton<IEmployeeParser, JsonEmployeeParser>();
 builder.Services.AddSingleton<IGetEmployeesQueryHandler, GetEmployeesQueryHandler>();
 builder.Services.AddSingleton<IGetEmployeeByNameQueryHandler, GetEmployeeByNameQueryHandler>();
 builder.Services.AddSingleton<IAddEmployeesCommandHandler, AddEmployeesCommandHandler>();
+builder.Services.AddSingleton<IUpdateEmployeeCommandHandler, UpdateEmployeeCommandHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
 
 builder.WebHost.ConfigureKestrel(options =>
@@ -218,6 +219,45 @@ app.MapPost("/api/employee", async (HttpRequest request, IAddEmployeesCommandHan
 .Produces<CreatedResponse>(StatusCodes.Status201Created)
 .ProducesProblem(StatusCodes.Status400BadRequest)
 .DisableAntiforgery();
+
+// PUT /api/employee/{name}
+app.MapPut("/api/employee/{name}", (IUpdateEmployeeCommandHandler handler, ILogger<Program> logger, string name, UpdateEmployeeRequest request) =>
+{
+    using (logger.BeginScope(new Dictionary<string, object>
+    {
+        ["Endpoint"] = "PUT /api/employee/{name}",
+        ["TargetName"] = name
+    }))
+    {
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 100)
+        {
+            return EmployeeErrors.InvalidName.ToList().ToProblem();
+        }
+
+        logger.UpdateEmployeeStarted(name);
+
+        return handler.Handle(new UpdateEmployeeCommand(name, request))
+            .Match(
+                employee =>
+                {
+                    logger.UpdateEmployeeSuccess(employee.Name);
+                    return Results.Ok(employee);
+                },
+                errors =>
+                {
+                    logger.UpdateEmployeeFailed(errors[0].Code, errors[0].Description);
+                    return errors.ToProblem();
+                });
+    }
+})
+.WithName("UpdateEmployee")
+.WithTags("Employee")
+.WithSummary("직원 정보 수정")
+.WithDescription("이름으로 직원을 찾아 정보를 수정합니다. 요청 본문에 포함된 필드만 업데이트됩니다.")
+.Produces<Employee>()
+.ProducesProblem(StatusCodes.Status400BadRequest)
+.ProducesProblem(StatusCodes.Status404NotFound)
+.ProducesProblem(StatusCodes.Status409Conflict);
 
 app.Run();
 

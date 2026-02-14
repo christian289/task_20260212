@@ -39,6 +39,7 @@ src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
     GetEmployeeByNameQuery.cs          # 쿼리: 이름으로 직원 조회 (요청 + 핸들러)
   Commands/
     AddEmployeesCommand.cs             # 커맨드: CSV/JSON으로 직원 추가 (요청 + 핸들러)
+    UpdateEmployeeCommand.cs           # 커맨드: 직원 정보 수정 (요청 + 핸들러)
   Validators/
     EmployeeValidator.cs               # FluentValidation 검증 규칙
   Errors/
@@ -54,13 +55,14 @@ tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
 tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
   GlobalUsings.cs                      # 전역 using 선언
   Program.cs                           # Bogus 기반 한국어 직원 데이터 생성
-tools/concurrent-test.ps1              # Singleton+WAL 동시성 테스트 스크립트
+tools/concurrent-test.ps1              # Singleton+WAL POST 동시성 테스트 스크립트
+tools/update-test.ps1                  # PUT 수정 엔드포인트 테스트 스크립트
 ```
 
 ## 빌드 및 테스트
 ```bash
 dotnet build
-dotnet test                            # 테스트 26개 (통합 16 + Moq 4 + Bogus 6)
+dotnet test                            # 테스트 32개 (통합 22 + Moq 4 + Bogus 6)
 dotnet run --project src/CompanyC.Api  # API 서버 (Scalar UI: /scalar/v1)
 dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 ```
@@ -69,6 +71,7 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - `GET /api/employee?page={page}&pageSize={pageSize}` - 페이지네이션 직원 목록
 - `GET /api/employee/{name}` - 이름으로 직원 조회 (미발견 시 404, 빈값/100자 초과 시 400)
 - `POST /api/employee` - 직원 추가 (CSV 본문, JSON 본문, CSV 파일, JSON 파일)
+- `PUT /api/employee/{name}` - 직원 정보 수정 (부분 업데이트, 미존재 시 404, 중복 시 409)
 - `GET /openapi/v1.json` - OpenAPI 명세
 - `GET /scalar/v1` - Scalar API 문서 UI
 
@@ -77,6 +80,7 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
   - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler` (try/catch + ErrorOr)
   - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler` (try/catch + ErrorOr)
   - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
+  - `UpdateEmployeeCommand` → `IUpdateEmployeeCommandHandler` → `UpdateEmployeeCommandHandler` (try/catch + ErrorOr)
 - **Employee**: 필수 필드(Name, Email, Tel, Joined) + `Dictionary<string, string> ExtraFields`를 가진 `sealed class` (`init` 속성으로 불변성 보장)
 - **파서**: `IEmployeeParser` 인터페이스, `CanParse(contentType, extension)` 전략 패턴
   - `CsvEmployeeParser`: CSV/text/plain 파싱 (헤더 감지 시 ExtraFields 지원, 미감지 시 heuristic)
