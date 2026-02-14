@@ -52,6 +52,7 @@ tests/CompanyC.Api.IntegrationTests/   # 통합 테스트 (xUnit)
 tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
   GlobalUsings.cs                      # 전역 using 선언
   Program.cs                           # Bogus 기반 한국어 직원 데이터 생성
+tools/concurrent-test.ps1              # Singleton+WAL 동시성 테스트 스크립트
 ```
 
 ## 빌드 및 테스트
@@ -80,13 +81,15 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
   - `JsonEmployeeParser`: JSON 파싱 (알 수 없는 키 → ExtraFields)
   - 새 형식 추가: `IEmployeeParser` 구현 + DI 등록
 - **저장소**: `IEmployeeRepository` → `SqliteEmployeeRepository` (SQLite, WAL 모드, 동적 컬럼)
-  - Hash 기반 PK: `Name|Email|Tel|Joined`를 SHA256 해시하여 중복 방지 (`INSERT OR IGNORE`)
+  - Hash 기반 PK: `Name|Email|Tel|Joined`를 SHA256 해시하여 중복 방지 (`INSERT OR IGNORE`, 전부 중복 시 409 Conflict)
   - ExtraFields는 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
   - SELECT *로 읽은 후 기본 컬럼(Hash, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
   - `DateTime.TryParseExact`로 SQLite TEXT 값 안전 파싱
 - **로깅**: Serilog (Console + 일별 롤링 파일 `logs/CompanyC-{date}.txt`, 30일 보관)
   - `[LoggerMessage]` Source Generator 패턴으로 고성능 로깅 (CA1848/CA1873 준수)
   - `LogMessages.cs`에 모든 로그 메서드 중앙 관리
+  - `global using ILogger = Microsoft.Extensions.Logging.ILogger;` 별칭으로 Serilog ILogger 충돌 해소
+- **JSON 인코딩**: `JavaScriptEncoder.Create(UnicodeRanges.All)`로 한글 직접 출력 (유니코드 이스케이프 없음)
 
 ## 규칙
 - Minimal API (컨트롤러 없음)
