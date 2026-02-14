@@ -99,7 +99,13 @@ public sealed class AddEmployeesCommandHandler(
             return storeResult.Errors;
         }
 
-        logger.EmployeeDataProcessed(validEmployees.Count);
-        return validEmployees;
+        var inserted = storeResult.Value;
+        if (inserted.Count == 0)
+        {
+            return EmployeeErrors.AllDuplicate;
+        }
+
+        logger.EmployeeDataProcessed(inserted.Count);
+        return inserted;
     }
 }

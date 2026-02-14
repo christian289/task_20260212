@@ -91,10 +91,10 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
         return reader.Read() ? ReadEmployee(reader) : null;
     }
 
-    public ErrorOr<Success> AddRange(List<Employee> employees)
+    public ErrorOr<List<Employee>> AddRange(List<Employee> employees)
     {
         if (employees.Count == 0)
-            return Result.Success;
+            return new List<Employee>();
 
         try
         {
@@ -129,7 +129,7 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                 parameters[i] = command.Parameters.Add($"@p{i}", SqliteType.Text);
             }
 
-            var insertedCount = 0;
+            var inserted = new List<Employee>();
             foreach (var employee in employees)
             {
                 parameters[0].Value = ComputeHash(employee);
@@ -146,16 +146,17 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                         : (object)DBNull.Value;
                 }
 
-                insertedCount += command.ExecuteNonQuery();
+                if (command.ExecuteNonQuery() > 0)
+                    inserted.Add(employee);
             }
 
-            var skippedCount = employees.Count - insertedCount;
+            var skippedCount = employees.Count - inserted.Count;
             if (skippedCount > 0)
                 _logger.DuplicateEmployeesSkipped(skippedCount);
 
-            _logger.InsertCompleted(insertedCount);
+            _logger.InsertCompleted(inserted.Count);
             transaction.Commit();
-            return Result.Success;
+            return inserted;
         }
         catch (Exception ex)
         {

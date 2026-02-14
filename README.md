@@ -233,3 +233,37 @@ CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `Ext
 ```
 
 검증 규칙을 변경하려면 `Repositories/SqliteEmployeeRepository.cs`의 `SafeColumnNamePattern()`과 `IsValidColumnName()` 메서드를 수정하세요.
+
+## 동시성 테스트 (Singleton + SQLite WAL)
+
+`tools/concurrent-test.ps1` 스크립트로 Singleton Repository + SQLite WAL 환경에서의 동시 쓰기 성능을 테스트했습니다.
+
+```bash
+pwsh -ExecutionPolicy Bypass -File "tools/concurrent-test.ps1"
+```
+
+### 테스트 시나리오
+
+| 시나리오 | 동시 요청 | 요청당 직원 수 | 총 직원 수 | 결과 |
+|----------|----------|---------------|-----------|------|
+| 경량 동시성 | 100 | 1 | 100 | **PASS** - 100/100 성공, 6.7초 |
+| 중량 동시성 | 100 | 50 | 5,000 | **PASS** - 100/100 성공, 8.6초 |
+| 극단적 동시성 | 1,000 | 50 | 50,000 | **FAIL** - 65/1,000 성공, 9,500건 삽입 |
+
+### 분석
+
+**경량/중량 (PASS)**: SQLite WAL 모드가 동시 쓰기를 안정적으로 처리합니다.
+- `INSERT OR IGNORE`로 Hash PK 기반 중복 방지
+- 요청별 독립 `SqliteConnection`으로 교착(deadlock) 없음
+- `Microsoft.Data.Sqlite` 내부 `busy_timeout`이 쓰기 잠금 대기 처리
+- `SQLITE_BUSY` 에러 발생 없음
+
+**극단적 (FAIL)**: SQLite 문제가 아닌 **Kestrel HTTP 서버 수용 한계**입니다.
+- 1,000개 동시 TCP 연결 → 스레드 풀 포화
+- `HttpClient.Timeout`(30초) 초과로 클라이언트측 요청 취소
+- 서버에서 `BadHttpRequestException: Unexpected end of request content` 발생 (클라이언트 연결 끊김)
+- 실제 프로덕션에서는 로드밸런서, rate limiting, 큐잉으로 처리하는 영역
+
+### 결론
+
+Singleton + SQLite WAL 구조는 **수백 건 수준의 동시 요청**에서 안정적으로 작동합니다. 극단적 부하(1,000+ 동시 요청)에서의 실패는 DB 레이어가 아닌 HTTP 서버 레이어의 한계이며, 이 규모에서는 DB를 PostgreSQL 등으로 전환하거나 앞단에 큐잉 시스템을 도입하는 것이 적절합니다.

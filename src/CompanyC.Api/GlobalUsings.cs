@@ -1,10 +1,14 @@
 global using System.Globalization;
 global using System.Security.Cryptography;
 global using System.Text;
+global using System.Text.Encodings.Web;
 global using System.Text.Json;
+global using System.Text.Unicode;
 global using System.Text.RegularExpressions;
 global using System.Xml.Linq;
 global using ErrorOr;
 global using FluentValidation;
 global using Microsoft.Data.Sqlite;
 global using Scalar.AspNetCore;
+global using Serilog;
+global using ILogger = Microsoft.Extensions.Logging.ILogger;
