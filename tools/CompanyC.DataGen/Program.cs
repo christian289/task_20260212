@@ -1,9 +1,3 @@
-var JsonWriteOptions = new JsonSerializerOptions
-{
-    WriteIndented = true,
-    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-};
-
 var count = 10;
 var format = "both";
 var outputPath = Directory.GetCurrentDirectory();
@@ -102,7 +96,7 @@ if (format is "json" or "both")
         joined = e.Joined.ToString("yyyy-MM-dd")
     }).ToList();
 
-    var jsonContent = JsonSerializer.Serialize(jsonData, JsonWriteOptions);
+    var jsonContent = JsonSerializer.Serialize(jsonData, DataGenOptions.JsonWriteOptions);
 
     File.WriteAllText(jsonPath, jsonContent, Encoding.UTF8);
     Console.WriteLine($"Generated {count} employees -> {jsonPath}");
@@ -111,3 +105,12 @@ if (format is "json" or "both")
 Console.WriteLine($"Data generation complete! Count: {count}, Format: {format}");
 
 record Employee(string Name, string Email, string Tel, DateTime Joined);
+
+static class DataGenOptions
+{
+    internal static readonly JsonSerializerOptions JsonWriteOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+}

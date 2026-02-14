@@ -17,11 +17,11 @@ public sealed class GetEmployeeByNameQueryHandler(
 {
     public ErrorOr<Employee> Handle(GetEmployeeByNameQuery query)
     {
-        logger.LogDebug("이름 검색 실행: Name={Name}", query.Name);
+        logger.NameSearchExecuting(query.Name);
         var employee = repository.GetByName(query.Name);
         if (employee is null)
         {
-            logger.LogDebug("직원 미발견: Name={Name}", query.Name);
+            logger.EmployeeNotFoundByName(query.Name);
             return EmployeeErrors.NotFound(query.Name);
         }
         return employee;

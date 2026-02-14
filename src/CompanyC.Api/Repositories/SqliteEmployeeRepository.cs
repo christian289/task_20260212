@@ -9,7 +9,7 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
     private readonly ILogger<SqliteEmployeeRepository> _logger;
     private static readonly HashSet<string> BaseColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "Name", "Email", "Tel", "Joined"
+        "Hash", "Name", "Email", "Tel", "Joined"
     };
 
     [GeneratedRegex(@"^[a-zA-Z_][a-zA-Z_\d]*$")]
@@ -31,6 +31,13 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
             && SafeColumnNamePattern().IsMatch(name);
     }
 
+    internal static string ComputeHash(Employee employee)
+    {
+        var input = $"{employee.Name}|{employee.Email}|{employee.Tel}|{employee.Joined:yyyy-MM-dd}";
+        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+        return Convert.ToHexStringLower(hashBytes);
+    }
+
     private void InitializeDatabase()
     {
         using var connection = new SqliteConnection(_connectionString);
@@ -44,7 +51,7 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
         createCmd.CommandText = QueryLoader.Get("CreateTable");
         createCmd.ExecuteNonQuery();
 
-        _logger.LogInformation("SQLite 데이터베이스 초기화 완료");
+        _logger.DatabaseInitialized();
     }
 
     public (IReadOnlyList<Employee> Items, int TotalCount) GetAll(int page, int pageSize)
@@ -104,13 +111,13 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
             if (extraKeys.Count > 0)
                 EnsureColumns(connection, extraKeys);
 
-            // 동적 INSERT 구성
-            var allColumns = new List<string> { "Name", "Email", "Tel", "Joined" };
+            // 동적 INSERT 구성 (Hash PK 기반 중복 무시)
+            var allColumns = new List<string> { "Hash", "Name", "Email", "Tel", "Joined" };
             allColumns.AddRange(extraKeys);
 
             var quotedColumns = allColumns.Select(c => $"\"{c}\"");
             var paramNames = allColumns.Select((_, i) => $"@p{i}").ToList();
-            var insertSql = $"INSERT INTO Employees ({string.Join(", ", quotedColumns)}) VALUES ({string.Join(", ", paramNames)})";
+            var insertSql = $"INSERT OR IGNORE INTO Employees ({string.Join(", ", quotedColumns)}) VALUES ({string.Join(", ", paramNames)})";
 
             using var transaction = connection.BeginTransaction();
             using var command = connection.CreateCommand();
@@ -122,14 +129,16 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                 parameters[i] = command.Parameters.Add($"@p{i}", SqliteType.Text);
             }
 
+            var insertedCount = 0;
             foreach (var employee in employees)
             {
-                parameters[0].Value = employee.Name;
-                parameters[1].Value = employee.Email;
-                parameters[2].Value = employee.Tel;
-                parameters[3].Value = employee.Joined.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                parameters[0].Value = ComputeHash(employee);
+                parameters[1].Value = employee.Name;
+                parameters[2].Value = employee.Email;
+                parameters[3].Value = employee.Tel;
+                parameters[4].Value = employee.Joined.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-                for (var i = 4; i < allColumns.Count; i++)
+                for (var i = 5; i < allColumns.Count; i++)
                 {
                     var key = allColumns[i];
                     parameters[i].Value = employee.ExtraFields.TryGetValue(key, out var val)
@@ -137,16 +146,20 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                         : (object)DBNull.Value;
                 }
 
-                command.ExecuteNonQuery();
+                insertedCount += command.ExecuteNonQuery();
             }
 
-            _logger.LogDebug("{Count}건 INSERT 완료", employees.Count);
+            var skippedCount = employees.Count - insertedCount;
+            if (skippedCount > 0)
+                _logger.DuplicateEmployeesSkipped(skippedCount);
+
+            _logger.InsertCompleted(insertedCount);
             transaction.Commit();
             return Result.Success;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "직원 데이터 저장 중 오류 발생");
+            _logger.StorageError(ex);
             return EmployeeErrors.StorageFailed(ex.Message);
         }
     }
@@ -162,7 +175,7 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
 
             if (!IsValidColumnName(col))
             {
-                _logger.LogWarning("유효하지 않은 컬럼명 무시: {ColumnName}", col);
+                _logger.InvalidColumnNameIgnored(col);
                 continue;
             }
 
@@ -171,18 +184,18 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                 using var alterCmd = connection.CreateCommand();
                 alterCmd.CommandText = string.Format(QueryLoader.Get("AddColumn"), $"\"{col}\"");
                 alterCmd.ExecuteNonQuery();
-                _logger.LogInformation("동적 컬럼 추가: {ColumnName}", col);
+                _logger.DynamicColumnAdded(col);
             }
             catch (SqliteException ex) when (ex.Message.Contains("duplicate column"))
             {
-                _logger.LogDebug("컬럼 이미 존재 (동시 요청): {ColumnName}", col);
+                _logger.ColumnAlreadyExists(col);
             }
 
             existingColumns.Add(col);
         }
     }
 
-    private HashSet<string> GetExistingColumns(SqliteConnection connection)
+    private static HashSet<string> GetExistingColumns(SqliteConnection connection)
     {
         var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         using var cmd = connection.CreateCommand();
@@ -215,10 +228,12 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
             Name = reader.GetString(reader.GetOrdinal("Name")),
             Email = reader.GetString(reader.GetOrdinal("Email")),
             Tel = reader.GetString(reader.GetOrdinal("Tel")),
-            Joined = DateTime.ParseExact(
+            Joined = DateTime.TryParseExact(
                 reader.GetString(reader.GetOrdinal("Joined")),
                 "yyyy-MM-dd",
-                CultureInfo.InvariantCulture),
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var joinedDate) ? joinedDate : default,
             ExtraFields = extraFields
         };
     }

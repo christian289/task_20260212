@@ -23,7 +23,7 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
     {
         try
         {
-            logger.LogDebug("CSV 파싱 시작: ContentLength={ContentLength}", content.Length);
+            logger.CsvParsingStarted(content.Length);
 
             var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(l => l.Trim())
@@ -41,12 +41,12 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
                 ? ParseWithHeaders(lines, firstLineParts)
                 : ParseHeuristic(lines);
 
-            logger.LogDebug("CSV 파싱 완료: {Count}건", result.Count);
+            logger.CsvParsingCompleted(result.Count);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "CSV 파싱 중 오류 발생");
+            logger.CsvParsingError(ex);
             return EmployeeErrors.ParseFailed("CSV", ex.Message);
         }
     }
