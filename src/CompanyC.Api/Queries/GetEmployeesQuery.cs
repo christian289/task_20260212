@@ -1,3 +1,4 @@
+using CompanyC.Api.Errors;
 using CompanyC.Api.Models;
 using CompanyC.Api.Repositories;
 
@@ -18,9 +19,17 @@ public sealed class GetEmployeesQueryHandler(
 {
     public ErrorOr<GetEmployeesResult> Handle(GetEmployeesQuery query)
     {
-        logger.DbQueryExecuting(query.Page, query.PageSize);
-        var (items, totalCount) = repository.GetAll(query.Page, query.PageSize);
-        logger.DbQueryCompleted(items.Count, totalCount);
-        return new GetEmployeesResult(items, totalCount);
+        try
+        {
+            logger.DbQueryExecuting(query.Page, query.PageSize);
+            var (items, totalCount) = repository.GetAll(query.Page, query.PageSize);
+            logger.DbQueryCompleted(items.Count, totalCount);
+            return new GetEmployeesResult(items, totalCount);
+        }
+        catch (Exception ex)
+        {
+            logger.StorageError(ex);
+            return EmployeeErrors.StorageFailed;
+        }
     }
 }

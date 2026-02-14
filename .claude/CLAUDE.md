@@ -74,8 +74,8 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 
 ## 아키텍처
 - **CQRS**: Query/Command 분리 — 요청 메시지 record + 핸들러 인터페이스/클래스 per 오퍼레이션
-  - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler`
-  - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler`
+  - `GetEmployeesQuery` → `IGetEmployeesQueryHandler` → `GetEmployeesQueryHandler` (try/catch + ErrorOr)
+  - `GetEmployeeByNameQuery` → `IGetEmployeeByNameQueryHandler` → `GetEmployeeByNameQueryHandler` (try/catch + ErrorOr)
   - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
 - **Employee**: 필수 필드(Name, Email, Tel, Joined) + `Dictionary<string, string> ExtraFields`를 가진 `sealed class` (`init` 속성으로 불변성 보장)
 - **파서**: `IEmployeeParser` 인터페이스, `CanParse(contentType, extension)` 전략 패턴
@@ -84,9 +84,11 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
   - 새 형식 추가: `IEmployeeParser` 구현 + DI 등록
 - **저장소**: `IEmployeeRepository` → `SqliteEmployeeRepository` (SQLite, WAL 모드, 동적 컬럼)
   - Hash 기반 PK: `Name|Email|Tel|Joined`를 SHA256 해시하여 중복 방지 (`INSERT OR IGNORE`, 전부 중복 시 409 Conflict)
-  - ExtraFields는 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
+  - ExtraFields는 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN, 트랜잭션 내 DDL)
   - SELECT *로 읽은 후 기본 컬럼(Hash, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
   - `DateTime.TryParseExact`로 SQLite TEXT 값 안전 파싱
+- **보안**: 에러 응답에 내부 정보(ex.Message, DB 경로 등) 미포함 — 상세 내용은 로그에만 기록
+- **입력 검증**: 페이지네이션 page 상한(10M), name 길이 제한(100자), pageSize 제한(1~100)
 - **로깅**: Serilog (Console + 일별 롤링 파일 `logs/CompanyC-{date}.txt`, 30일 보관)
   - `[LoggerMessage]` Source Generator 패턴으로 고성능 로깅 (CA1848/CA1873 준수)
   - `LogMessages.cs`에 모든 로그 메서드 중앙 관리

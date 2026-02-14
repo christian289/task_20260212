@@ -112,6 +112,9 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
                 .Where(IsValidColumnName)
                 .ToList();
 
+            // DDL과 INSERT를 동일 트랜잭션으로 묶어 동시 AddRange 호출 간 경합 방지
+            using var transaction = connection.BeginTransaction();
+
             if (extraKeys.Count > 0)
                 EnsureColumns(connection, extraKeys);
 
@@ -122,8 +125,6 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
             var quotedColumns = allColumns.Select(c => $"\"{c}\"");
             var paramNames = allColumns.Select((_, i) => $"@p{i}").ToList();
             var insertSql = $"INSERT OR IGNORE INTO Employees ({string.Join(", ", quotedColumns)}) VALUES ({string.Join(", ", paramNames)})";
-
-            using var transaction = connection.BeginTransaction();
             using var command = connection.CreateCommand();
             command.CommandText = insertSql;
 
@@ -165,7 +166,7 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
         catch (Exception ex)
         {
             _logger.StorageError(ex);
-            return EmployeeErrors.StorageFailed(ex.Message);
+            return EmployeeErrors.StorageFailed;
         }
     }
 

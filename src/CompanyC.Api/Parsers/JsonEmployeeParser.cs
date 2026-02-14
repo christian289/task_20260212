@@ -67,12 +67,12 @@ public sealed class JsonEmployeeParser(ILogger<JsonEmployeeParser> logger) : IEm
         catch (JsonException ex)
         {
             logger.JsonParsingError(ex);
-            return EmployeeErrors.ParseFailed("JSON", ex.Message);
+            return EmployeeErrors.ParseFailed("JSON");
         }
         catch (Exception ex)
         {
             logger.JsonParsingError(ex);
-            return EmployeeErrors.ParseFailed("JSON", ex.Message);
+            return EmployeeErrors.ParseFailed("JSON");
         }
     }
 
