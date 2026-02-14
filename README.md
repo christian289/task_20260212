@@ -115,7 +115,8 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both --output
 CompanyC.slnx                          # 솔루션 파일
 src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
   GlobalUsings.cs                      # 전역 using 선언
-  Program.cs                           # 엔드포인트 + DI + OpenAPI/Scalar
+  Program.cs                           # 엔드포인트 + DI + OpenAPI/Scalar + Serilog
+  LogMessages.cs                       # [LoggerMessage] Source Generator 로그 메서드 정의
   Models/
     Employee.cs                        # Employee 클래스 (필수 필드 + ExtraFields)
   Parsers/
@@ -157,8 +158,13 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
   - `AddEmployeesCommand` → `IAddEmployeesCommandHandler` → `AddEmployeesCommandHandler`
 - **SQLite 영속성**: Repository 패턴 (`IEmployeeRepository` → `SqliteEmployeeRepository`)
   - WAL 모드로 동시성 처리
+  - Hash 기반 PK: `Name|Email|Tel|Joined`를 SHA256 해시하여 중복 데이터 방지 (`INSERT OR IGNORE`)
   - ExtraFields를 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
-  - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
+  - SELECT *로 읽은 후 기본 컬럼(Hash, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
+  - `DateTime.TryParseExact`로 SQLite TEXT 값 안전 파싱 (SQLite에 DateTime 타입 없음)
+- **로깅**: Serilog (Console + 일별 롤링 파일 `logs/CompanyC-{date}.txt`, 30일 보관)
+  - `[LoggerMessage]` Source Generator 패턴으로 고성능 구조화 로깅 (CA1848/CA1873 준수)
+  - 모든 로그 메서드는 `LogMessages.cs`에 중앙 관리
 - **외부 SQL 파일**: `Repositories/EmployeeQueries.xml`에서 쿼리 로드, DBA가 재컴파일 없이 수정 가능
 - **전략 패턴 파서**: `IEmployeeParser` 인터페이스로 CSV/JSON 파서 교체 가능
   - `CsvEmployeeParser`: CSV/text/plain 파싱 (헤더 감지 시 ExtraFields 지원)
@@ -169,6 +175,7 @@ tools/CompanyC.DataGen/                # CLI 더미 데이터 생성기
 - **OpenAPI + Scalar**: API 문서 자동 생성 및 Scalar UI 제공 (`/scalar/v1`)
 - **DTO는 record**: 불변성과 값 기반 동등성을 위해 모든 DTO를 `record`로 구현
 - **JsonSerializerOptions 사전 정의**: 리플렉션 캐시 재사용을 위해 `static readonly`로 선언
+- **LoggerMessage Source Generator**: `[LoggerMessage]` 어트리뷰트로 컴파일 타임 로그 코드 생성 (박싱/문자열 보간 오버헤드 제거)
 - **CQRS Handler 인터페이스**: DI 기반 테스트(Moq) 지원을 위한 인터페이스 추출
 - **전역 using 관리**: 외부 네임스페이스는 `GlobalUsings.cs`에 집중 관리
 
@@ -184,7 +191,7 @@ CSV/JSON 입력에서 기본 필드(Name, Email, Tel, Joined) 외의 키는 `Ext
 | 첫 글자 | 숫자로 시작 불가 | `rank1` (O), `1rank` (X) |
 | 길이 제한 | 최대 128자 | - |
 | 제어 문자 | null 바이트 등 제어 문자 포함 불가 | - |
-| 예약어 | 기본 컬럼명(Id, Name, Email, Tel, Joined) 사용 불가 | - |
+| 예약어 | 기본 컬럼명(Hash, Name, Email, Tel, Joined) 사용 불가 | - |
 
 ### 유효한 ExtraFields 키 예시
 

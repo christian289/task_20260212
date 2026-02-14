@@ -20,7 +20,8 @@ Company C 입사과제 - 직원 긴급 연락망 API (ASP.NET Core Minimal API, 
 CompanyC.slnx                          # 솔루션 파일
 src/CompanyC.Api/                      # API 프로젝트 (Minimal API)
   GlobalUsings.cs                      # 전역 using 선언
-  Program.cs                           # 엔드포인트 + DI + OpenAPI/Scalar
+  Program.cs                           # 엔드포인트 + DI + OpenAPI/Scalar + Serilog
+  LogMessages.cs                       # [LoggerMessage] Source Generator 로그 메서드 정의
   Models/
     Employee.cs                        # Employee 클래스 (필수 필드 + ExtraFields)
   Parsers/
@@ -79,8 +80,13 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
   - `JsonEmployeeParser`: JSON 파싱 (알 수 없는 키 → ExtraFields)
   - 새 형식 추가: `IEmployeeParser` 구현 + DI 등록
 - **저장소**: `IEmployeeRepository` → `SqliteEmployeeRepository` (SQLite, WAL 모드, 동적 컬럼)
+  - Hash 기반 PK: `Name|Email|Tel|Joined`를 SHA256 해시하여 중복 방지 (`INSERT OR IGNORE`)
   - ExtraFields는 단일 JSON 컬럼이 아닌 실제 DB 컬럼으로 동적 생성 (ALTER TABLE ADD COLUMN)
-  - SELECT *로 읽은 후 기본 컬럼(Id, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
+  - SELECT *로 읽은 후 기본 컬럼(Hash, Name, Email, Tel, Joined) 외 컬럼은 ExtraFields에 로딩
+  - `DateTime.TryParseExact`로 SQLite TEXT 값 안전 파싱
+- **로깅**: Serilog (Console + 일별 롤링 파일 `logs/CompanyC-{date}.txt`, 30일 보관)
+  - `[LoggerMessage]` Source Generator 패턴으로 고성능 로깅 (CA1848/CA1873 준수)
+  - `LogMessages.cs`에 모든 로그 메서드 중앙 관리
 
 ## 규칙
 - Minimal API (컨트롤러 없음)
@@ -111,4 +117,5 @@ dotnet run --project tools/CompanyC.DataGen -- --count 50 --format both
 - `JsonSerializerOptions`는 `static readonly`로 선언 - `.claude/skills/enforcing-json-options-predefine/` 참조
 - 외부 네임스페이스는 `GlobalUsings.cs`에 집중 관리 - `.claude/skills/managing-global-usings/` 참조
 - `Regex`는 `[GeneratedRegex]` Source Generator로 선언 - `.claude/skills/enforcing-generated-regex/` 참조
+- 로그 메서드는 `[LoggerMessage]` Source Generator로 `LogMessages.cs`에 정의 (CA1848/CA1873 준수)
 - 브랜치 + PR 워크플로우 (의미 있는 커밋) - `.claude/skills/managing-branch-pr-workflow/` 참조

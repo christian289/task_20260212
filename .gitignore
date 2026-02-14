@@ -425,3 +425,6 @@ nul
 NUL
 .omc
 .claude/settings.local.json
+*.db-wal
+*.db-shm
+*.db
