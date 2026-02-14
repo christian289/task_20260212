@@ -120,6 +120,9 @@ internal static partial class LogMessages
     [LoggerMessage(EventId = 5003, Level = LogLevel.Error, Message = "CSV 파싱 중 오류 발생")]
     internal static partial void CsvParsingError(this ILogger logger, Exception exception);
 
+    [LoggerMessage(EventId = 5007, Level = LogLevel.Debug, Message = "CSV 행 건너뜀 (필수 필드 누락): Line={LineNumber}")]
+    internal static partial void CsvRowSkipped(this ILogger logger, int lineNumber);
+
     // === JSON Parser ===
     [LoggerMessage(EventId = 5004, Level = LogLevel.Debug, Message = "JSON 파싱 시작: ContentLength={ContentLength}")]
     internal static partial void JsonParsingStarted(this ILogger logger, int contentLength);

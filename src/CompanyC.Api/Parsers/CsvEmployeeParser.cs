@@ -38,8 +38,8 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
             var hasHeader = firstLineParts.Any(p => KnownHeaders.Contains(p));
 
             var result = hasHeader
-                ? ParseWithHeaders(lines, firstLineParts)
-                : ParseHeuristic(lines);
+                ? ParseWithHeaders(logger, lines, firstLineParts)
+                : ParseHeuristic(logger, lines);
 
             logger.CsvParsingCompleted(result.Count);
             return result;
@@ -47,11 +47,11 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
         catch (Exception ex)
         {
             logger.CsvParsingError(ex);
-            return EmployeeErrors.ParseFailed("CSV", ex.Message);
+            return EmployeeErrors.ParseFailed("CSV");
         }
     }
 
-    private static List<Employee> ParseWithHeaders(List<string> lines, string[] headers)
+    private static List<Employee> ParseWithHeaders(ILogger logger, List<string> lines, string[] headers)
     {
         var result = new List<Employee>();
 
@@ -96,7 +96,10 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
             }
 
             if (name is null || email is null || tel is null)
+            {
+                logger.CsvRowSkipped(i + 1);
                 continue;
+            }
 
             result.Add(new Employee
             {
@@ -111,13 +114,13 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
         return result;
     }
 
-    private static List<Employee> ParseHeuristic(List<string> lines)
+    private static List<Employee> ParseHeuristic(ILogger logger, List<string> lines)
     {
         var result = new List<Employee>();
 
-        foreach (var line in lines)
+        for (var i = 0; i < lines.Count; i++)
         {
-            var parts = line.Split(',')
+            var parts = lines[i].Split(',')
                 .Select(p => p.Trim())
                 .Where(p => !string.IsNullOrEmpty(p))
                 .ToArray();
@@ -147,7 +150,10 @@ public sealed class CsvEmployeeParser(ILogger<CsvEmployeeParser> logger) : IEmpl
             }
 
             if (email is null || tel is null)
+            {
+                logger.CsvRowSkipped(i + 1);
                 continue;
+            }
 
             result.Add(new Employee { Name = name, Email = email, Tel = tel, Joined = joined });
         }

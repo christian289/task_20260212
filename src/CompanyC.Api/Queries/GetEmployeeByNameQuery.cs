@@ -17,13 +17,21 @@ public sealed class GetEmployeeByNameQueryHandler(
 {
     public ErrorOr<Employee> Handle(GetEmployeeByNameQuery query)
     {
-        logger.NameSearchExecuting(query.Name);
-        var employee = repository.GetByName(query.Name);
-        if (employee is null)
+        try
         {
-            logger.EmployeeNotFoundByName(query.Name);
-            return EmployeeErrors.NotFound(query.Name);
+            logger.NameSearchExecuting(query.Name);
+            var employee = repository.GetByName(query.Name);
+            if (employee is null)
+            {
+                logger.EmployeeNotFoundByName(query.Name);
+                return EmployeeErrors.NotFound(query.Name);
+            }
+            return employee;
         }
-        return employee;
+        catch (Exception ex)
+        {
+            logger.StorageError(ex);
+            return EmployeeErrors.StorageFailed;
+        }
     }
 }
