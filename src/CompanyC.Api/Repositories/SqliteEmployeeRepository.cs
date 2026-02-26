@@ -11,6 +11,8 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
     {
         "Hash", "Name", "Email", "Tel", "Joined"
     };
+    private static readonly ConcurrentDictionary<string, bool> _initializedDatabases = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Lock _initLock = new();
 
     [GeneratedRegex(@"^[a-zA-Z_][a-zA-Z_\d]*$")]
     private static partial Regex SafeColumnNamePattern();
@@ -19,7 +21,18 @@ public sealed partial class SqliteEmployeeRepository : IEmployeeRepository
     {
         _connectionString = connectionString;
         _logger = logger;
-        InitializeDatabase();
+
+        if (!_initializedDatabases.ContainsKey(connectionString))
+        {
+            lock (_initLock)
+            {
+                if (!_initializedDatabases.ContainsKey(connectionString))
+                {
+                    InitializeDatabase();
+                    _initializedDatabases.TryAdd(connectionString, true);
+                }
+            }
+        }
     }
 
     private static bool IsValidColumnName(string name)

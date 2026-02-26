@@ -34,17 +34,17 @@ builder.Services.AddOpenApi(options =>
     });
 });
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=employees.db";
-builder.Services.AddSingleton<IEmployeeRepository>(sp =>
+builder.Services.AddScoped<IEmployeeRepository>(sp =>
     new SqliteEmployeeRepository(
         connectionString,
         sp.GetRequiredService<ILogger<SqliteEmployeeRepository>>()));
-builder.Services.AddSingleton<IEmployeeParser, CsvEmployeeParser>();
-builder.Services.AddSingleton<IEmployeeParser, JsonEmployeeParser>();
-builder.Services.AddSingleton<IGetEmployeesQueryHandler, GetEmployeesQueryHandler>();
-builder.Services.AddSingleton<IGetEmployeeByNameQueryHandler, GetEmployeeByNameQueryHandler>();
-builder.Services.AddSingleton<IAddEmployeesCommandHandler, AddEmployeesCommandHandler>();
-builder.Services.AddSingleton<IUpdateEmployeeCommandHandler, UpdateEmployeeCommandHandler>();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
+builder.Services.AddScoped<IEmployeeParser, CsvEmployeeParser>();
+builder.Services.AddScoped<IEmployeeParser, JsonEmployeeParser>();
+builder.Services.AddScoped<IGetEmployeesQueryHandler, GetEmployeesQueryHandler>();
+builder.Services.AddScoped<IGetEmployeeByNameQueryHandler, GetEmployeeByNameQueryHandler>();
+builder.Services.AddScoped<IAddEmployeesCommandHandler, AddEmployeesCommandHandler>();
+builder.Services.AddScoped<IUpdateEmployeeCommandHandler, UpdateEmployeeCommandHandler>();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Scoped);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
